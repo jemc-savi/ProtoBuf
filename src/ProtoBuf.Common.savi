@@ -955,6 +955,7 @@
   :var packed (Bool | None): None
   :var jstype (ProtoBuf.Common.FieldOptions.JSType | None): None
   :var lazy (Bool | None): None
+  :var unverified_lazy (Bool | None): None
   :var deprecated (Bool | None): None
   :var weak (Bool | None): None
   :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
@@ -966,6 +967,7 @@
       | 16 | try (@packed = read.bool!)
       | 48 | try (@jstype = ProtoBuf.Common.FieldOptions.JSType.from_u64!(read.uint64!))
       | 40 | try (@lazy = read.bool!)
+      | 120 | try (@unverified_lazy = read.bool!)
       | 24 | try (@deprecated = read.bool!)
       | 80 | try (@weak = read.bool!)
       | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
@@ -992,6 +994,10 @@
       write.bool_field(40, lazy)
     )
     try (
+      unverified_lazy = @unverified_lazy.not!(None)
+      write.bool_field(120, unverified_lazy)
+    )
+    try (
       deprecated = @deprecated.not!(None)
       write.bool_field(24, deprecated)
     )
@@ -1011,6 +1017,7 @@
     try (size += ProtoBuf.SizeOf.bool_field(16, @packed.not!(None)))
     try (size += ProtoBuf.SizeOf.enum_field(48, @jstype.not!(None).u64))
     try (size += ProtoBuf.SizeOf.bool_field(40, @lazy.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(120, @unverified_lazy.not!(None)))
     try (size += ProtoBuf.SizeOf.bool_field(24, @deprecated.not!(None)))
     try (size += ProtoBuf.SizeOf.bool_field(80, @weak.not!(None)))
     @uninterpreted_option.each -> (uninterpreted_option |

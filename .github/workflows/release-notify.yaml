@@ -1,0 +1,22 @@
+name: release-notify
+on:
+  release:
+    types: [published]
+jobs:
+  zulip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: notify zulip
+        uses: zulip/github-actions-zulip/send-message@v1
+        with:
+          api-key: ${{ secrets.SAVI_ZULIP_API_KEY }}
+          email: 'jemc-release-bot-bot@savi.zulipchat.com'
+          organization-url: 'https://savi.zulipchat.com'
+          to: 'notifications'
+          type: 'stream'
+          topic: '${{ github.event.repository.full_name }} releases'
+          content: >
+            [${{ github.event.release.name }}](${{ github.event.release.html_url }})
+            of
+            [${{ github.event.repository.full_name }}](github.event.release.html_url)
+            has been released!
