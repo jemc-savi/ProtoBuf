@@ -1,0 +1,55 @@
+:actor Main
+  :is StdIn.Actor
+  :let env Env
+  :let io StdIn.Engine
+  :let out_stream ByteStream.Writer
+  :new (@env)
+    @out_stream = ByteStream.Writer.to_actor(@env.out)
+    @io = StdIn.Engine.new(@)
+    StdIn.Ticket.get(@env.root.ticket_issuer, @)
+
+  :fun ref _io_react(action IO.Action)
+    // Only react when we're sure we've read all of the input from STDIN.
+    return @ if (action != IO.Action.Closed)
+
+    // @env.err.print(Inspect[@io.read_stream.extract_all]) // TODO: remove
+
+    // Read the code generation request from STDIN.
+    read = ProtoBuf.Reader.new(@io.read_stream)
+    req = ProtoBuf.Compiler.CodeGeneratorRequest.new
+    try (
+      req.from_proto!(read)
+    |
+      @env.err.print("FAILED READING") // TODO: more informative error
+    )
+
+    // Create a namespace root, and setup some common package name overrides.
+    // TODO: Make the pre-setup package name overrides configurable?
+    name_root = _Gen.Name.Root.new
+    name_root.pre_override_for_package_name("google.protobuf", "ProtoBuf.Common")
+    name_root.pre_override_for_package_name("google.protobuf.compiler", "ProtoBuf.Compiler")
+
+    // Walk through each proto file, making a `_Gen.File` for each one.
+    gen_files Array(_Gen.File) = []
+    req.proto_file.each -> (proto_file |
+      package_name = try (proto_file.package.not!(None) | "")
+      namespace = name_root.namespace_for_package_name(package_name)
+
+      gen_files << _Gen.File.new(proto_file, namespace)
+    )
+
+    // Emit the generated code for each file into a response object.
+    res = ProtoBuf.Compiler.CodeGeneratorResponse.new
+    gen_files.each -> (gen_file |
+      res_file = ProtoBuf.Compiler.CodeGeneratorResponse.File.new
+      res_file.name = gen_file.output_file_name
+      res_file.content = gen_file.into(String.new_iso)
+
+      res.file << res_file
+    )
+
+    // Emit the response object to the STDOUT stream, encoded as ProtoBuf.
+    res.to_proto(ProtoBuf.Writer.new(@out_stream))
+    try @out_stream.flush!
+
+    @

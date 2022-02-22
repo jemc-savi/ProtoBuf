@@ -1,0 +1,95 @@
+:class ProtoBuf.Reader
+  :var _depth USize: 0
+  :let _wire ProtoBuf.Wire.Reader
+  :new (stream)
+    @_wire = ProtoBuf.Wire.Reader.new(stream)
+
+  :fun ref unknown_field(key U64)
+    // TODO: Track an "unknown field" warning object here for possible printing
+    // (because some users may want to know about a protocol version mismatch).
+
+    // The kind of field is indicated by the lowest three bits of the key.
+    kind = key.u8.bit_and(0b111)
+
+    // Skip the field's value, based on knowing the kind of encoding it uses.
+    try (
+      case kind == (
+      | 0 | @_wire.skip_varint!
+      | 1 | @_wire.skip_64_bit_value!
+      | 2 | @_wire.skip_sized_value!
+      // TODO: 3: "start group"
+      // TODO: 4: "end group"
+      | 5 | @_wire.skip_32_bit_value!
+      |
+        // TODO: Track an "invalid key" error object here for printing.
+        error!
+      )
+    )
+
+    @
+
+  :fun ref each_in_object!
+    @_depth += 1
+    if (@_depth == 1) (
+      @each_in_top_object! -> (key | yield key)
+      @_depth -= 1
+      return
+    )
+
+    size = @_wire.read_varint_as_u64!.usize!
+    finish_line = size + @_wire.stream.bytes_behind
+    while (@_wire.stream.bytes_behind < finish_line) (
+      yield @_wire.read_varint_as_u64!
+    )
+
+    @_depth -= 1
+    @
+
+  :fun ref each_in_top_object!
+    while @_wire.has_bytes_ahead (
+      yield @_wire.read_varint_as_u64!
+    )
+    @
+
+  :fun ref int32! I32
+    value = @_wire.read_varint_as_u64!.i32
+    @_wire.stream.mark_here
+    value
+
+  :fun ref uint64! U64
+    value = @_wire.read_varint_as_u64!
+    @_wire.stream.mark_here
+    value
+
+  :fun ref int64! I64
+    value = @_wire.read_varint_as_u64!.i64
+    @_wire.stream.mark_here
+    value
+
+  :fun ref bool! Bool
+    value = @_wire.read_varint_as_u64! > 0
+    @_wire.stream.mark_here
+    value
+
+  :fun ref double! F64
+    @_wire.stream.advance!(8), F64.nan // TODO
+
+  :fun ref string! String
+    size = @_wire.read_varint_as_u64!.usize!
+    error! if (@_wire.stream.bytes_ahead < size)
+
+    @_wire.stream
+      .mark_here
+      .advance!(size)
+      .extract_token.as_string
+
+  :fun ref bytes! Bytes
+    size = @_wire.read_varint_as_u64!.usize!
+    error! if (@_wire.stream.bytes_ahead < size)
+
+    @_wire.stream
+      .mark_here
+      .advance!(size)
+      .extract_token
+
+// TODO: Packed encoding of repeated numeric fields: https://developers.google.com/protocol-buffers/docs/encoding#packed

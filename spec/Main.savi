@@ -1,0 +1,7 @@
+:actor Main
+  :new (env)
+    Spec.Process.run(env, [
+      Spec.Run(ProtoBuf.Reader.Spec).new(env)
+      Spec.Run(ProtoBuf.Wire.Reader.Spec).new(env)
+      Spec.Run(ProtoBuf.Wire.Writer.Spec).new(env)
+    ])

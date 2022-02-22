@@ -1,0 +1,185 @@
+:class ProtoBuf.Compiler.Version
+  :var major (I32 | None): None
+  :var minor (I32 | None): None
+  :var patch (I32 | None): None
+  :var suffix (String | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@major = read.int32!)
+      | 16 | try (@minor = read.int32!)
+      | 24 | try (@patch = read.int32!)
+      | 34 | try (@suffix = read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      major = @major.not!(None)
+      write.int32_field(8, major)
+    )
+    try (
+      minor = @minor.not!(None)
+      write.int32_field(16, minor)
+    )
+    try (
+      patch = @patch.not!(None)
+      write.int32_field(24, patch)
+    )
+    try (
+      suffix = @suffix.not!(None)
+      write.string_field(34, suffix)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.int32_field(8, @major.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(16, @minor.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(24, @patch.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(34, @suffix.not!(None)))
+    size
+
+:class ProtoBuf.Compiler.CodeGeneratorRequest
+  :var file_to_generate Array(String): []
+  :var parameter (String | None): None
+  :var proto_file Array(ProtoBuf.Common.FileDescriptorProto): []
+  :var compiler_version (ProtoBuf.Compiler.Version | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@file_to_generate << read.string!)
+      | 18 | try (@parameter = read.string!)
+      | 122 | try (@proto_file << ProtoBuf.Common.FileDescriptorProto.new.from_proto!(read))
+      | 26 | try (@compiler_version = ProtoBuf.Compiler.Version.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @file_to_generate.each -> (file_to_generate |
+      write.string_field(10, file_to_generate)
+    )
+    try (
+      parameter = @parameter.not!(None)
+      write.string_field(18, parameter)
+    )
+    @proto_file.each -> (proto_file |
+      write.embedded_field(122, proto_file.to_proto_size)
+      proto_file.to_proto(write)
+    )
+    try (
+      compiler_version = @compiler_version.not!(None)
+      write.embedded_field(26, compiler_version.to_proto_size)
+      compiler_version.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @file_to_generate.each -> (file_to_generate |
+      size += ProtoBuf.SizeOf.string_field(10, file_to_generate)
+    )
+    try (size += ProtoBuf.SizeOf.string_field(18, @parameter.not!(None)))
+    @proto_file.each -> (proto_file |
+      size += ProtoBuf.SizeOf.embedded_field(122, proto_file.to_proto_size)
+    )
+    try (size += ProtoBuf.SizeOf.embedded_field(26, @compiler_version.not!(None).to_proto_size))
+    size
+
+:class ProtoBuf.Compiler.CodeGeneratorResponse
+  :var error (String | None): None
+  :var supported_features (U64 | None): None
+  :var file Array(ProtoBuf.Compiler.CodeGeneratorResponse.File): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@error = read.string!)
+      | 16 | try (@supported_features = read.uint64!)
+      | 122 | try (@file << ProtoBuf.Compiler.CodeGeneratorResponse.File.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      error = @error.not!(None)
+      write.string_field(10, error)
+    )
+    try (
+      supported_features = @supported_features.not!(None)
+      write.uint64_field(16, supported_features)
+    )
+    @file.each -> (file |
+      write.embedded_field(122, file.to_proto_size)
+      file.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @error.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint64_field(16, @supported_features.not!(None)))
+    @file.each -> (file |
+      size += ProtoBuf.SizeOf.embedded_field(122, file.to_proto_size)
+    )
+    size
+
+:enum ProtoBuf.Compiler.CodeGeneratorResponse.Feature
+  :const bit_width U8: 8
+  :member ProtoBuf.Compiler.CodeGeneratorResponse.Feature.FEATURE_NONE: 0
+  :member ProtoBuf.Compiler.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL: 1
+
+:class ProtoBuf.Compiler.CodeGeneratorResponse.File
+  :var name (String | None): None
+  :var insertion_point (String | None): None
+  :var content (String | None): None
+  :var generated_code_info (ProtoBuf.Common.GeneratedCodeInfo | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@insertion_point = read.string!)
+      | 122 | try (@content = read.string!)
+      | 130 | try (@generated_code_info = ProtoBuf.Common.GeneratedCodeInfo.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    try (
+      insertion_point = @insertion_point.not!(None)
+      write.string_field(18, insertion_point)
+    )
+    try (
+      content = @content.not!(None)
+      write.string_field(122, content)
+    )
+    try (
+      generated_code_info = @generated_code_info.not!(None)
+      write.embedded_field(130, generated_code_info.to_proto_size)
+      generated_code_info.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(18, @insertion_point.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(122, @content.not!(None)))
+    try (size += ProtoBuf.SizeOf.embedded_field(130, @generated_code_info.not!(None).to_proto_size))
+    size
+

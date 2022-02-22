@@ -1,0 +1,1458 @@
+:class ProtoBuf.Common.FileDescriptorSet
+  :var file Array(ProtoBuf.Common.FileDescriptorProto): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@file << ProtoBuf.Common.FileDescriptorProto.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @file.each -> (file |
+      write.embedded_field(10, file.to_proto_size)
+      file.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @file.each -> (file |
+      size += ProtoBuf.SizeOf.embedded_field(10, file.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.FileDescriptorProto
+  :var name (String | None): None
+  :var package (String | None): None
+  :var dependency Array(String): []
+  :var public_dependency Array(I32): []
+  :var weak_dependency Array(I32): []
+  :var message_type Array(ProtoBuf.Common.DescriptorProto): []
+  :var enum_type Array(ProtoBuf.Common.EnumDescriptorProto): []
+  :var service Array(ProtoBuf.Common.ServiceDescriptorProto): []
+  :var extension Array(ProtoBuf.Common.FieldDescriptorProto): []
+  :var options (ProtoBuf.Common.FileOptions | None): None
+  :var source_code_info (ProtoBuf.Common.SourceCodeInfo | None): None
+  :var syntax (String | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@package = read.string!)
+      | 26 | try (@dependency << read.string!)
+      | 80 | try (@public_dependency << read.int32!)
+      | 88 | try (@weak_dependency << read.int32!)
+      | 34 | try (@message_type << ProtoBuf.Common.DescriptorProto.new.from_proto!(read))
+      | 42 | try (@enum_type << ProtoBuf.Common.EnumDescriptorProto.new.from_proto!(read))
+      | 50 | try (@service << ProtoBuf.Common.ServiceDescriptorProto.new.from_proto!(read))
+      | 58 | try (@extension << ProtoBuf.Common.FieldDescriptorProto.new.from_proto!(read))
+      | 66 | try (@options = ProtoBuf.Common.FileOptions.new.from_proto!(read))
+      | 74 | try (@source_code_info = ProtoBuf.Common.SourceCodeInfo.new.from_proto!(read))
+      | 98 | try (@syntax = read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    try (
+      package = @package.not!(None)
+      write.string_field(18, package)
+    )
+    @dependency.each -> (dependency |
+      write.string_field(26, dependency)
+    )
+    @public_dependency.each -> (public_dependency |
+      write.int32_field(80, public_dependency)
+    )
+    @weak_dependency.each -> (weak_dependency |
+      write.int32_field(88, weak_dependency)
+    )
+    @message_type.each -> (message_type |
+      write.embedded_field(34, message_type.to_proto_size)
+      message_type.to_proto(write)
+    )
+    @enum_type.each -> (enum_type |
+      write.embedded_field(42, enum_type.to_proto_size)
+      enum_type.to_proto(write)
+    )
+    @service.each -> (service |
+      write.embedded_field(50, service.to_proto_size)
+      service.to_proto(write)
+    )
+    @extension.each -> (extension |
+      write.embedded_field(58, extension.to_proto_size)
+      extension.to_proto(write)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(66, options.to_proto_size)
+      options.to_proto(write)
+    )
+    try (
+      source_code_info = @source_code_info.not!(None)
+      write.embedded_field(74, source_code_info.to_proto_size)
+      source_code_info.to_proto(write)
+    )
+    try (
+      syntax = @syntax.not!(None)
+      write.string_field(98, syntax)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(18, @package.not!(None)))
+    @dependency.each -> (dependency |
+      size += ProtoBuf.SizeOf.string_field(26, dependency)
+    )
+    @public_dependency.each -> (public_dependency |
+      size += ProtoBuf.SizeOf.int32_field(80, public_dependency)
+    )
+    @weak_dependency.each -> (weak_dependency |
+      size += ProtoBuf.SizeOf.int32_field(88, weak_dependency)
+    )
+    @message_type.each -> (message_type |
+      size += ProtoBuf.SizeOf.embedded_field(34, message_type.to_proto_size)
+    )
+    @enum_type.each -> (enum_type |
+      size += ProtoBuf.SizeOf.embedded_field(42, enum_type.to_proto_size)
+    )
+    @service.each -> (service |
+      size += ProtoBuf.SizeOf.embedded_field(50, service.to_proto_size)
+    )
+    @extension.each -> (extension |
+      size += ProtoBuf.SizeOf.embedded_field(58, extension.to_proto_size)
+    )
+    try (size += ProtoBuf.SizeOf.embedded_field(66, @options.not!(None).to_proto_size))
+    try (size += ProtoBuf.SizeOf.embedded_field(74, @source_code_info.not!(None).to_proto_size))
+    try (size += ProtoBuf.SizeOf.string_field(98, @syntax.not!(None)))
+    size
+
+:class ProtoBuf.Common.DescriptorProto
+  :var name (String | None): None
+  :var field Array(ProtoBuf.Common.FieldDescriptorProto): []
+  :var extension Array(ProtoBuf.Common.FieldDescriptorProto): []
+  :var nested_type Array(ProtoBuf.Common.DescriptorProto): []
+  :var enum_type Array(ProtoBuf.Common.EnumDescriptorProto): []
+  :var extension_range Array(ProtoBuf.Common.DescriptorProto.ExtensionRange): []
+  :var oneof_decl Array(ProtoBuf.Common.OneofDescriptorProto): []
+  :var options (ProtoBuf.Common.MessageOptions | None): None
+  :var reserved_range Array(ProtoBuf.Common.DescriptorProto.ReservedRange): []
+  :var reserved_name Array(String): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@field << ProtoBuf.Common.FieldDescriptorProto.new.from_proto!(read))
+      | 50 | try (@extension << ProtoBuf.Common.FieldDescriptorProto.new.from_proto!(read))
+      | 26 | try (@nested_type << ProtoBuf.Common.DescriptorProto.new.from_proto!(read))
+      | 34 | try (@enum_type << ProtoBuf.Common.EnumDescriptorProto.new.from_proto!(read))
+      | 42 | try (@extension_range << ProtoBuf.Common.DescriptorProto.ExtensionRange.new.from_proto!(read))
+      | 66 | try (@oneof_decl << ProtoBuf.Common.OneofDescriptorProto.new.from_proto!(read))
+      | 58 | try (@options = ProtoBuf.Common.MessageOptions.new.from_proto!(read))
+      | 74 | try (@reserved_range << ProtoBuf.Common.DescriptorProto.ReservedRange.new.from_proto!(read))
+      | 82 | try (@reserved_name << read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    @field.each -> (field |
+      write.embedded_field(18, field.to_proto_size)
+      field.to_proto(write)
+    )
+    @extension.each -> (extension |
+      write.embedded_field(50, extension.to_proto_size)
+      extension.to_proto(write)
+    )
+    @nested_type.each -> (nested_type |
+      write.embedded_field(26, nested_type.to_proto_size)
+      nested_type.to_proto(write)
+    )
+    @enum_type.each -> (enum_type |
+      write.embedded_field(34, enum_type.to_proto_size)
+      enum_type.to_proto(write)
+    )
+    @extension_range.each -> (extension_range |
+      write.embedded_field(42, extension_range.to_proto_size)
+      extension_range.to_proto(write)
+    )
+    @oneof_decl.each -> (oneof_decl |
+      write.embedded_field(66, oneof_decl.to_proto_size)
+      oneof_decl.to_proto(write)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(58, options.to_proto_size)
+      options.to_proto(write)
+    )
+    @reserved_range.each -> (reserved_range |
+      write.embedded_field(74, reserved_range.to_proto_size)
+      reserved_range.to_proto(write)
+    )
+    @reserved_name.each -> (reserved_name |
+      write.string_field(82, reserved_name)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    @field.each -> (field |
+      size += ProtoBuf.SizeOf.embedded_field(18, field.to_proto_size)
+    )
+    @extension.each -> (extension |
+      size += ProtoBuf.SizeOf.embedded_field(50, extension.to_proto_size)
+    )
+    @nested_type.each -> (nested_type |
+      size += ProtoBuf.SizeOf.embedded_field(26, nested_type.to_proto_size)
+    )
+    @enum_type.each -> (enum_type |
+      size += ProtoBuf.SizeOf.embedded_field(34, enum_type.to_proto_size)
+    )
+    @extension_range.each -> (extension_range |
+      size += ProtoBuf.SizeOf.embedded_field(42, extension_range.to_proto_size)
+    )
+    @oneof_decl.each -> (oneof_decl |
+      size += ProtoBuf.SizeOf.embedded_field(66, oneof_decl.to_proto_size)
+    )
+    try (size += ProtoBuf.SizeOf.embedded_field(58, @options.not!(None).to_proto_size))
+    @reserved_range.each -> (reserved_range |
+      size += ProtoBuf.SizeOf.embedded_field(74, reserved_range.to_proto_size)
+    )
+    @reserved_name.each -> (reserved_name |
+      size += ProtoBuf.SizeOf.string_field(82, reserved_name)
+    )
+    size
+
+:class ProtoBuf.Common.DescriptorProto.ExtensionRange
+  :var start (I32 | None): None
+  :var end (I32 | None): None
+  :var options (ProtoBuf.Common.ExtensionRangeOptions | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@start = read.int32!)
+      | 16 | try (@end = read.int32!)
+      | 26 | try (@options = ProtoBuf.Common.ExtensionRangeOptions.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      start = @start.not!(None)
+      write.int32_field(8, start)
+    )
+    try (
+      end = @end.not!(None)
+      write.int32_field(16, end)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(26, options.to_proto_size)
+      options.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.int32_field(8, @start.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(16, @end.not!(None)))
+    try (size += ProtoBuf.SizeOf.embedded_field(26, @options.not!(None).to_proto_size))
+    size
+
+:class ProtoBuf.Common.DescriptorProto.ReservedRange
+  :var start (I32 | None): None
+  :var end (I32 | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@start = read.int32!)
+      | 16 | try (@end = read.int32!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      start = @start.not!(None)
+      write.int32_field(8, start)
+    )
+    try (
+      end = @end.not!(None)
+      write.int32_field(16, end)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.int32_field(8, @start.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(16, @end.not!(None)))
+    size
+
+:class ProtoBuf.Common.ExtensionRangeOptions
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.FieldDescriptorProto
+  :var name (String | None): None
+  :var number (I32 | None): None
+  :var label (ProtoBuf.Common.FieldDescriptorProto.Label | None): None
+  :var type (ProtoBuf.Common.FieldDescriptorProto.Type | None): None
+  :var type_name (String | None): None
+  :var extendee (String | None): None
+  :var default_value (String | None): None
+  :var oneof_index (I32 | None): None
+  :var json_name (String | None): None
+  :var options (ProtoBuf.Common.FieldOptions | None): None
+  :var proto3_optional (Bool | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 24 | try (@number = read.int32!)
+      | 32 | try (@label = ProtoBuf.Common.FieldDescriptorProto.Label.from_u64!(read.uint64!))
+      | 40 | try (@type = ProtoBuf.Common.FieldDescriptorProto.Type.from_u64!(read.uint64!))
+      | 50 | try (@type_name = read.string!)
+      | 18 | try (@extendee = read.string!)
+      | 58 | try (@default_value = read.string!)
+      | 72 | try (@oneof_index = read.int32!)
+      | 82 | try (@json_name = read.string!)
+      | 66 | try (@options = ProtoBuf.Common.FieldOptions.new.from_proto!(read))
+      | 136 | try (@proto3_optional = read.bool!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    try (
+      number = @number.not!(None)
+      write.int32_field(24, number)
+    )
+    try (
+      label = @label.not!(None)
+      write.enum_field(32, label.u64)
+    )
+    try (
+      type = @type.not!(None)
+      write.enum_field(40, type.u64)
+    )
+    try (
+      type_name = @type_name.not!(None)
+      write.string_field(50, type_name)
+    )
+    try (
+      extendee = @extendee.not!(None)
+      write.string_field(18, extendee)
+    )
+    try (
+      default_value = @default_value.not!(None)
+      write.string_field(58, default_value)
+    )
+    try (
+      oneof_index = @oneof_index.not!(None)
+      write.int32_field(72, oneof_index)
+    )
+    try (
+      json_name = @json_name.not!(None)
+      write.string_field(82, json_name)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(66, options.to_proto_size)
+      options.to_proto(write)
+    )
+    try (
+      proto3_optional = @proto3_optional.not!(None)
+      write.bool_field(136, proto3_optional)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(24, @number.not!(None)))
+    try (size += ProtoBuf.SizeOf.enum_field(32, @label.not!(None).u64))
+    try (size += ProtoBuf.SizeOf.enum_field(40, @type.not!(None).u64))
+    try (size += ProtoBuf.SizeOf.string_field(50, @type_name.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(18, @extendee.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(58, @default_value.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(72, @oneof_index.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(82, @json_name.not!(None)))
+    try (size += ProtoBuf.SizeOf.embedded_field(66, @options.not!(None).to_proto_size))
+    try (size += ProtoBuf.SizeOf.bool_field(136, @proto3_optional.not!(None)))
+    size
+
+:enum ProtoBuf.Common.FieldDescriptorProto.Type
+  :const bit_width U8: 8
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE: 1
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT: 2
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64: 3
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64: 4
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32: 5
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64: 6
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32: 7
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL: 8
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING: 9
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP: 10
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE: 11
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES: 12
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32: 13
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM: 14
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32: 15
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64: 16
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32: 17
+  :member ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64: 18
+
+:enum ProtoBuf.Common.FieldDescriptorProto.Label
+  :const bit_width U8: 8
+  :member ProtoBuf.Common.FieldDescriptorProto.Label.LABEL_OPTIONAL: 1
+  :member ProtoBuf.Common.FieldDescriptorProto.Label.LABEL_REQUIRED: 2
+  :member ProtoBuf.Common.FieldDescriptorProto.Label.LABEL_REPEATED: 3
+
+:class ProtoBuf.Common.OneofDescriptorProto
+  :var name (String | None): None
+  :var options (ProtoBuf.Common.OneofOptions | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@options = ProtoBuf.Common.OneofOptions.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(18, options.to_proto_size)
+      options.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    try (size += ProtoBuf.SizeOf.embedded_field(18, @options.not!(None).to_proto_size))
+    size
+
+:class ProtoBuf.Common.EnumDescriptorProto
+  :var name (String | None): None
+  :var value Array(ProtoBuf.Common.EnumValueDescriptorProto): []
+  :var options (ProtoBuf.Common.EnumOptions | None): None
+  :var reserved_range Array(ProtoBuf.Common.EnumDescriptorProto.EnumReservedRange): []
+  :var reserved_name Array(String): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@value << ProtoBuf.Common.EnumValueDescriptorProto.new.from_proto!(read))
+      | 26 | try (@options = ProtoBuf.Common.EnumOptions.new.from_proto!(read))
+      | 34 | try (@reserved_range << ProtoBuf.Common.EnumDescriptorProto.EnumReservedRange.new.from_proto!(read))
+      | 42 | try (@reserved_name << read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    @value.each -> (value |
+      write.embedded_field(18, value.to_proto_size)
+      value.to_proto(write)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(26, options.to_proto_size)
+      options.to_proto(write)
+    )
+    @reserved_range.each -> (reserved_range |
+      write.embedded_field(34, reserved_range.to_proto_size)
+      reserved_range.to_proto(write)
+    )
+    @reserved_name.each -> (reserved_name |
+      write.string_field(42, reserved_name)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    @value.each -> (value |
+      size += ProtoBuf.SizeOf.embedded_field(18, value.to_proto_size)
+    )
+    try (size += ProtoBuf.SizeOf.embedded_field(26, @options.not!(None).to_proto_size))
+    @reserved_range.each -> (reserved_range |
+      size += ProtoBuf.SizeOf.embedded_field(34, reserved_range.to_proto_size)
+    )
+    @reserved_name.each -> (reserved_name |
+      size += ProtoBuf.SizeOf.string_field(42, reserved_name)
+    )
+    size
+
+:class ProtoBuf.Common.EnumDescriptorProto.EnumReservedRange
+  :var start (I32 | None): None
+  :var end (I32 | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@start = read.int32!)
+      | 16 | try (@end = read.int32!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      start = @start.not!(None)
+      write.int32_field(8, start)
+    )
+    try (
+      end = @end.not!(None)
+      write.int32_field(16, end)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.int32_field(8, @start.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(16, @end.not!(None)))
+    size
+
+:class ProtoBuf.Common.EnumValueDescriptorProto
+  :var name (String | None): None
+  :var number (I32 | None): None
+  :var options (ProtoBuf.Common.EnumValueOptions | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 16 | try (@number = read.int32!)
+      | 26 | try (@options = ProtoBuf.Common.EnumValueOptions.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    try (
+      number = @number.not!(None)
+      write.int32_field(16, number)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(26, options.to_proto_size)
+      options.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(16, @number.not!(None)))
+    try (size += ProtoBuf.SizeOf.embedded_field(26, @options.not!(None).to_proto_size))
+    size
+
+:class ProtoBuf.Common.ServiceDescriptorProto
+  :var name (String | None): None
+  :var method Array(ProtoBuf.Common.MethodDescriptorProto): []
+  :var options (ProtoBuf.Common.ServiceOptions | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@method << ProtoBuf.Common.MethodDescriptorProto.new.from_proto!(read))
+      | 26 | try (@options = ProtoBuf.Common.ServiceOptions.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    @method.each -> (method |
+      write.embedded_field(18, method.to_proto_size)
+      method.to_proto(write)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(26, options.to_proto_size)
+      options.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    @method.each -> (method |
+      size += ProtoBuf.SizeOf.embedded_field(18, method.to_proto_size)
+    )
+    try (size += ProtoBuf.SizeOf.embedded_field(26, @options.not!(None).to_proto_size))
+    size
+
+:class ProtoBuf.Common.MethodDescriptorProto
+  :var name (String | None): None
+  :var input_type (String | None): None
+  :var output_type (String | None): None
+  :var options (ProtoBuf.Common.MethodOptions | None): None
+  :var client_streaming (Bool | None): None
+  :var server_streaming (Bool | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name = read.string!)
+      | 18 | try (@input_type = read.string!)
+      | 26 | try (@output_type = read.string!)
+      | 34 | try (@options = ProtoBuf.Common.MethodOptions.new.from_proto!(read))
+      | 40 | try (@client_streaming = read.bool!)
+      | 48 | try (@server_streaming = read.bool!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name = @name.not!(None)
+      write.string_field(10, name)
+    )
+    try (
+      input_type = @input_type.not!(None)
+      write.string_field(18, input_type)
+    )
+    try (
+      output_type = @output_type.not!(None)
+      write.string_field(26, output_type)
+    )
+    try (
+      options = @options.not!(None)
+      write.embedded_field(34, options.to_proto_size)
+      options.to_proto(write)
+    )
+    try (
+      client_streaming = @client_streaming.not!(None)
+      write.bool_field(40, client_streaming)
+    )
+    try (
+      server_streaming = @server_streaming.not!(None)
+      write.bool_field(48, server_streaming)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(18, @input_type.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(26, @output_type.not!(None)))
+    try (size += ProtoBuf.SizeOf.embedded_field(34, @options.not!(None).to_proto_size))
+    try (size += ProtoBuf.SizeOf.bool_field(40, @client_streaming.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(48, @server_streaming.not!(None)))
+    size
+
+:class ProtoBuf.Common.FileOptions
+  :var java_package (String | None): None
+  :var java_outer_classname (String | None): None
+  :var java_multiple_files (Bool | None): None
+  :var java_generate_equals_and_hash (Bool | None): None
+  :var java_string_check_utf8 (Bool | None): None
+  :var optimize_for (ProtoBuf.Common.FileOptions.OptimizeMode | None): None
+  :var go_package (String | None): None
+  :var cc_generic_services (Bool | None): None
+  :var java_generic_services (Bool | None): None
+  :var py_generic_services (Bool | None): None
+  :var php_generic_services (Bool | None): None
+  :var deprecated (Bool | None): None
+  :var cc_enable_arenas (Bool | None): None
+  :var objc_class_prefix (String | None): None
+  :var csharp_namespace (String | None): None
+  :var swift_prefix (String | None): None
+  :var php_class_prefix (String | None): None
+  :var php_namespace (String | None): None
+  :var php_metadata_namespace (String | None): None
+  :var ruby_package (String | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@java_package = read.string!)
+      | 66 | try (@java_outer_classname = read.string!)
+      | 80 | try (@java_multiple_files = read.bool!)
+      | 160 | try (@java_generate_equals_and_hash = read.bool!)
+      | 216 | try (@java_string_check_utf8 = read.bool!)
+      | 72 | try (@optimize_for = ProtoBuf.Common.FileOptions.OptimizeMode.from_u64!(read.uint64!))
+      | 90 | try (@go_package = read.string!)
+      | 128 | try (@cc_generic_services = read.bool!)
+      | 136 | try (@java_generic_services = read.bool!)
+      | 144 | try (@py_generic_services = read.bool!)
+      | 336 | try (@php_generic_services = read.bool!)
+      | 184 | try (@deprecated = read.bool!)
+      | 248 | try (@cc_enable_arenas = read.bool!)
+      | 290 | try (@objc_class_prefix = read.string!)
+      | 298 | try (@csharp_namespace = read.string!)
+      | 314 | try (@swift_prefix = read.string!)
+      | 322 | try (@php_class_prefix = read.string!)
+      | 330 | try (@php_namespace = read.string!)
+      | 354 | try (@php_metadata_namespace = read.string!)
+      | 362 | try (@ruby_package = read.string!)
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      java_package = @java_package.not!(None)
+      write.string_field(10, java_package)
+    )
+    try (
+      java_outer_classname = @java_outer_classname.not!(None)
+      write.string_field(66, java_outer_classname)
+    )
+    try (
+      java_multiple_files = @java_multiple_files.not!(None)
+      write.bool_field(80, java_multiple_files)
+    )
+    try (
+      java_generate_equals_and_hash = @java_generate_equals_and_hash.not!(None)
+      write.bool_field(160, java_generate_equals_and_hash)
+    )
+    try (
+      java_string_check_utf8 = @java_string_check_utf8.not!(None)
+      write.bool_field(216, java_string_check_utf8)
+    )
+    try (
+      optimize_for = @optimize_for.not!(None)
+      write.enum_field(72, optimize_for.u64)
+    )
+    try (
+      go_package = @go_package.not!(None)
+      write.string_field(90, go_package)
+    )
+    try (
+      cc_generic_services = @cc_generic_services.not!(None)
+      write.bool_field(128, cc_generic_services)
+    )
+    try (
+      java_generic_services = @java_generic_services.not!(None)
+      write.bool_field(136, java_generic_services)
+    )
+    try (
+      py_generic_services = @py_generic_services.not!(None)
+      write.bool_field(144, py_generic_services)
+    )
+    try (
+      php_generic_services = @php_generic_services.not!(None)
+      write.bool_field(336, php_generic_services)
+    )
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(184, deprecated)
+    )
+    try (
+      cc_enable_arenas = @cc_enable_arenas.not!(None)
+      write.bool_field(248, cc_enable_arenas)
+    )
+    try (
+      objc_class_prefix = @objc_class_prefix.not!(None)
+      write.string_field(290, objc_class_prefix)
+    )
+    try (
+      csharp_namespace = @csharp_namespace.not!(None)
+      write.string_field(298, csharp_namespace)
+    )
+    try (
+      swift_prefix = @swift_prefix.not!(None)
+      write.string_field(314, swift_prefix)
+    )
+    try (
+      php_class_prefix = @php_class_prefix.not!(None)
+      write.string_field(322, php_class_prefix)
+    )
+    try (
+      php_namespace = @php_namespace.not!(None)
+      write.string_field(330, php_namespace)
+    )
+    try (
+      php_metadata_namespace = @php_metadata_namespace.not!(None)
+      write.string_field(354, php_metadata_namespace)
+    )
+    try (
+      ruby_package = @ruby_package.not!(None)
+      write.string_field(362, ruby_package)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @java_package.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(66, @java_outer_classname.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(80, @java_multiple_files.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(160, @java_generate_equals_and_hash.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(216, @java_string_check_utf8.not!(None)))
+    try (size += ProtoBuf.SizeOf.enum_field(72, @optimize_for.not!(None).u64))
+    try (size += ProtoBuf.SizeOf.string_field(90, @go_package.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(128, @cc_generic_services.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(136, @java_generic_services.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(144, @py_generic_services.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(336, @php_generic_services.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(184, @deprecated.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(248, @cc_enable_arenas.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(290, @objc_class_prefix.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(298, @csharp_namespace.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(314, @swift_prefix.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(322, @php_class_prefix.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(330, @php_namespace.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(354, @php_metadata_namespace.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(362, @ruby_package.not!(None)))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:enum ProtoBuf.Common.FileOptions.OptimizeMode
+  :const bit_width U8: 8
+  :member ProtoBuf.Common.FileOptions.OptimizeMode.SPEED: 1
+  :member ProtoBuf.Common.FileOptions.OptimizeMode.CODE_SIZE: 2
+  :member ProtoBuf.Common.FileOptions.OptimizeMode.LITE_RUNTIME: 3
+
+:class ProtoBuf.Common.MessageOptions
+  :var message_set_wire_format (Bool | None): None
+  :var no_standard_descriptor_accessor (Bool | None): None
+  :var deprecated (Bool | None): None
+  :var map_entry (Bool | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@message_set_wire_format = read.bool!)
+      | 16 | try (@no_standard_descriptor_accessor = read.bool!)
+      | 24 | try (@deprecated = read.bool!)
+      | 56 | try (@map_entry = read.bool!)
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      message_set_wire_format = @message_set_wire_format.not!(None)
+      write.bool_field(8, message_set_wire_format)
+    )
+    try (
+      no_standard_descriptor_accessor = @no_standard_descriptor_accessor.not!(None)
+      write.bool_field(16, no_standard_descriptor_accessor)
+    )
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(24, deprecated)
+    )
+    try (
+      map_entry = @map_entry.not!(None)
+      write.bool_field(56, map_entry)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.bool_field(8, @message_set_wire_format.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(16, @no_standard_descriptor_accessor.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(24, @deprecated.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(56, @map_entry.not!(None)))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.FieldOptions
+  :var ctype (ProtoBuf.Common.FieldOptions.CType | None): None
+  :var packed (Bool | None): None
+  :var jstype (ProtoBuf.Common.FieldOptions.JSType | None): None
+  :var lazy (Bool | None): None
+  :var deprecated (Bool | None): None
+  :var weak (Bool | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@ctype = ProtoBuf.Common.FieldOptions.CType.from_u64!(read.uint64!))
+      | 16 | try (@packed = read.bool!)
+      | 48 | try (@jstype = ProtoBuf.Common.FieldOptions.JSType.from_u64!(read.uint64!))
+      | 40 | try (@lazy = read.bool!)
+      | 24 | try (@deprecated = read.bool!)
+      | 80 | try (@weak = read.bool!)
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      ctype = @ctype.not!(None)
+      write.enum_field(8, ctype.u64)
+    )
+    try (
+      packed = @packed.not!(None)
+      write.bool_field(16, packed)
+    )
+    try (
+      jstype = @jstype.not!(None)
+      write.enum_field(48, jstype.u64)
+    )
+    try (
+      lazy = @lazy.not!(None)
+      write.bool_field(40, lazy)
+    )
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(24, deprecated)
+    )
+    try (
+      weak = @weak.not!(None)
+      write.bool_field(80, weak)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.enum_field(8, @ctype.not!(None).u64))
+    try (size += ProtoBuf.SizeOf.bool_field(16, @packed.not!(None)))
+    try (size += ProtoBuf.SizeOf.enum_field(48, @jstype.not!(None).u64))
+    try (size += ProtoBuf.SizeOf.bool_field(40, @lazy.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(24, @deprecated.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(80, @weak.not!(None)))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:enum ProtoBuf.Common.FieldOptions.CType
+  :const bit_width U8: 8
+  :member ProtoBuf.Common.FieldOptions.CType.STRING: 0
+  :member ProtoBuf.Common.FieldOptions.CType.CORD: 1
+  :member ProtoBuf.Common.FieldOptions.CType.STRING_PIECE: 2
+
+:enum ProtoBuf.Common.FieldOptions.JSType
+  :const bit_width U8: 8
+  :member ProtoBuf.Common.FieldOptions.JSType.JS_NORMAL: 0
+  :member ProtoBuf.Common.FieldOptions.JSType.JS_STRING: 1
+  :member ProtoBuf.Common.FieldOptions.JSType.JS_NUMBER: 2
+
+:class ProtoBuf.Common.OneofOptions
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.EnumOptions
+  :var allow_alias (Bool | None): None
+  :var deprecated (Bool | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 16 | try (@allow_alias = read.bool!)
+      | 24 | try (@deprecated = read.bool!)
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      allow_alias = @allow_alias.not!(None)
+      write.bool_field(16, allow_alias)
+    )
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(24, deprecated)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.bool_field(16, @allow_alias.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(24, @deprecated.not!(None)))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.EnumValueOptions
+  :var deprecated (Bool | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@deprecated = read.bool!)
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(8, deprecated)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.bool_field(8, @deprecated.not!(None)))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.ServiceOptions
+  :var deprecated (Bool | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 264 | try (@deprecated = read.bool!)
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(264, deprecated)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.bool_field(264, @deprecated.not!(None)))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.MethodOptions
+  :var deprecated (Bool | None): None
+  :var idempotency_level (ProtoBuf.Common.MethodOptions.IdempotencyLevel | None): None
+  :var uninterpreted_option Array(ProtoBuf.Common.UninterpretedOption): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 264 | try (@deprecated = read.bool!)
+      | 272 | try (@idempotency_level = ProtoBuf.Common.MethodOptions.IdempotencyLevel.from_u64!(read.uint64!))
+      | 7994 | try (@uninterpreted_option << ProtoBuf.Common.UninterpretedOption.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      deprecated = @deprecated.not!(None)
+      write.bool_field(264, deprecated)
+    )
+    try (
+      idempotency_level = @idempotency_level.not!(None)
+      write.enum_field(272, idempotency_level.u64)
+    )
+    @uninterpreted_option.each -> (uninterpreted_option |
+      write.embedded_field(7994, uninterpreted_option.to_proto_size)
+      uninterpreted_option.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.bool_field(264, @deprecated.not!(None)))
+    try (size += ProtoBuf.SizeOf.enum_field(272, @idempotency_level.not!(None).u64))
+    @uninterpreted_option.each -> (uninterpreted_option |
+      size += ProtoBuf.SizeOf.embedded_field(7994, uninterpreted_option.to_proto_size)
+    )
+    size
+
+:enum ProtoBuf.Common.MethodOptions.IdempotencyLevel
+  :const bit_width U8: 8
+  :member ProtoBuf.Common.MethodOptions.IdempotencyLevel.IDEMPOTENCY_UNKNOWN: 0
+  :member ProtoBuf.Common.MethodOptions.IdempotencyLevel.NO_SIDE_EFFECTS: 1
+  :member ProtoBuf.Common.MethodOptions.IdempotencyLevel.IDEMPOTENT: 2
+
+:class ProtoBuf.Common.UninterpretedOption
+  :var name Array(ProtoBuf.Common.UninterpretedOption.NamePart): []
+  :var identifier_value (String | None): None
+  :var positive_int_value (U64 | None): None
+  :var negative_int_value (I64 | None): None
+  :var double_value (F64 | None): None
+  :var string_value (Bytes | None): None
+  :var aggregate_value (String | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 18 | try (@name << ProtoBuf.Common.UninterpretedOption.NamePart.new.from_proto!(read))
+      | 26 | try (@identifier_value = read.string!)
+      | 32 | try (@positive_int_value = read.uint64!)
+      | 40 | try (@negative_int_value = read.int64!)
+      | 49 | try (@double_value = read.double!)
+      | 58 | try (@string_value = read.bytes!)
+      | 66 | try (@aggregate_value = read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @name.each -> (name |
+      write.embedded_field(18, name.to_proto_size)
+      name.to_proto(write)
+    )
+    try (
+      identifier_value = @identifier_value.not!(None)
+      write.string_field(26, identifier_value)
+    )
+    try (
+      positive_int_value = @positive_int_value.not!(None)
+      write.uint64_field(32, positive_int_value)
+    )
+    try (
+      negative_int_value = @negative_int_value.not!(None)
+      write.int64_field(40, negative_int_value)
+    )
+    try (
+      double_value = @double_value.not!(None)
+      write.double_field(49, double_value)
+    )
+    try (
+      string_value = @string_value.not!(None)
+      write.bytes_field(58, string_value)
+    )
+    try (
+      aggregate_value = @aggregate_value.not!(None)
+      write.string_field(66, aggregate_value)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @name.each -> (name |
+      size += ProtoBuf.SizeOf.embedded_field(18, name.to_proto_size)
+    )
+    try (size += ProtoBuf.SizeOf.string_field(26, @identifier_value.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint64_field(32, @positive_int_value.not!(None)))
+    try (size += ProtoBuf.SizeOf.int64_field(40, @negative_int_value.not!(None)))
+    try (size += ProtoBuf.SizeOf.double_field(49, @double_value.not!(None)))
+    try (size += ProtoBuf.SizeOf.bytes_field(58, @string_value.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(66, @aggregate_value.not!(None)))
+    size
+
+:class ProtoBuf.Common.UninterpretedOption.NamePart
+  :var name_part (String | None): None
+  :var is_extension (Bool | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@name_part = read.string!)
+      | 16 | try (@is_extension = read.bool!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      name_part = @name_part.not!(None)
+      write.string_field(10, name_part)
+    )
+    try (
+      is_extension = @is_extension.not!(None)
+      write.bool_field(16, is_extension)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.string_field(10, @name_part.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(16, @is_extension.not!(None)))
+    size
+
+:class ProtoBuf.Common.SourceCodeInfo
+  :var location Array(ProtoBuf.Common.SourceCodeInfo.Location): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@location << ProtoBuf.Common.SourceCodeInfo.Location.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @location.each -> (location |
+      write.embedded_field(10, location.to_proto_size)
+      location.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @location.each -> (location |
+      size += ProtoBuf.SizeOf.embedded_field(10, location.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.SourceCodeInfo.Location
+  :var path Array(I32): []
+  :var span Array(I32): []
+  :var leading_comments (String | None): None
+  :var trailing_comments (String | None): None
+  :var leading_detached_comments Array(String): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@path << read.int32!)
+      | 16 | try (@span << read.int32!)
+      | 26 | try (@leading_comments = read.string!)
+      | 34 | try (@trailing_comments = read.string!)
+      | 50 | try (@leading_detached_comments << read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @path.each -> (path |
+      write.int32_field(8, path)
+    )
+    @span.each -> (span |
+      write.int32_field(16, span)
+    )
+    try (
+      leading_comments = @leading_comments.not!(None)
+      write.string_field(26, leading_comments)
+    )
+    try (
+      trailing_comments = @trailing_comments.not!(None)
+      write.string_field(34, trailing_comments)
+    )
+    @leading_detached_comments.each -> (leading_detached_comments |
+      write.string_field(50, leading_detached_comments)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @path.each -> (path |
+      size += ProtoBuf.SizeOf.int32_field(8, path)
+    )
+    @span.each -> (span |
+      size += ProtoBuf.SizeOf.int32_field(16, span)
+    )
+    try (size += ProtoBuf.SizeOf.string_field(26, @leading_comments.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(34, @trailing_comments.not!(None)))
+    @leading_detached_comments.each -> (leading_detached_comments |
+      size += ProtoBuf.SizeOf.string_field(50, leading_detached_comments)
+    )
+    size
+
+:class ProtoBuf.Common.GeneratedCodeInfo
+  :var annotation Array(ProtoBuf.Common.GeneratedCodeInfo.Annotation): []
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 10 | try (@annotation << ProtoBuf.Common.GeneratedCodeInfo.Annotation.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @annotation.each -> (annotation |
+      write.embedded_field(10, annotation.to_proto_size)
+      annotation.to_proto(write)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @annotation.each -> (annotation |
+      size += ProtoBuf.SizeOf.embedded_field(10, annotation.to_proto_size)
+    )
+    size
+
+:class ProtoBuf.Common.GeneratedCodeInfo.Annotation
+  :var path Array(I32): []
+  :var source_file (String | None): None
+  :var begin (I32 | None): None
+  :var end (I32 | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@path << read.int32!)
+      | 18 | try (@source_file = read.string!)
+      | 24 | try (@begin = read.int32!)
+      | 32 | try (@end = read.int32!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    @path.each -> (path |
+      write.int32_field(8, path)
+    )
+    try (
+      source_file = @source_file.not!(None)
+      write.string_field(18, source_file)
+    )
+    try (
+      begin = @begin.not!(None)
+      write.int32_field(24, begin)
+    )
+    try (
+      end = @end.not!(None)
+      write.int32_field(32, end)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    @path.each -> (path |
+      size += ProtoBuf.SizeOf.int32_field(8, path)
+    )
+    try (size += ProtoBuf.SizeOf.string_field(18, @source_file.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(24, @begin.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(32, @end.not!(None)))
+    size
+

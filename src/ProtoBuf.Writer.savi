@@ -1,0 +1,37 @@
+:class ProtoBuf.Writer
+  :let _wire ProtoBuf.Wire.Writer
+  :new (stream)
+    @_wire = ProtoBuf.Wire.Writer.new(stream)
+
+  :fun ref embedded_field(key U64, size USize)
+    @_wire.u64_as_varint(key)
+    @_wire.u64_as_varint(size.u64)
+
+  :fun ref string_field(key U64, value String)
+    @_wire.u64_as_varint(key)
+    @_wire.u64_as_varint(value.size.u64)
+    @_wire._stream << value.as_bytes
+
+  :fun ref bytes_field(key U64, value Bytes)
+    @_wire.u64_as_varint(key)
+    @_wire.u64_as_varint(value.size.u64)
+    @_wire._stream << value
+
+  :fun ref bool_field(key U64, value Bool)
+    @_wire.u64_as_varint(key)
+    @_wire.bool_as_varint(value)
+
+  :fun ref int32_field(key U64, value I32)
+    @_wire.u64_as_varint(key)
+    @_wire.u32_as_varint(value.u32)
+
+  :fun ref uint64_field(key U64, value U64)
+    @_wire.u64_as_varint(key)
+    @_wire.u64_as_varint(value)
+
+  :fun ref int64_field(key U64, value I64): @uint64_field(key, value.u64)
+  :fun ref enum_field(key U64, value U64): @uint64_field(key, value)
+
+  :fun ref double_field(key U64, value F64)
+    @_wire.u64_as_varint(key)
+    @_wire.fixed64(value.bits)

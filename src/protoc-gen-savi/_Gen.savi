@@ -1,0 +1,451 @@
+:class _Gen.Name
+  :let short String
+  :let parent (_Gen.Name | _Gen.Name.Root)
+  :let _children: Map(String, _Gen.Name).new
+  :new (@short, @parent)
+    try @parent.as!(_Gen.Name)._add_child(@)
+
+  :fun root @->(_Gen.Name.Root): @parent.root
+
+  :fun lookup!(name_parts Array(String)'val) @->(_Gen.Name)
+    // Get the first name part from split name being looked up, or
+    // return this name as the found one if there are no more name parts left.
+    first_name_part = try (name_parts.first! | return @)
+
+    // Recursively look up the remaining name parts within the named child,
+    // or return an error if the child isn't there, or the inner lookup fails.
+    @_children[first_name_part]!.lookup!(name_parts.trim(1))
+
+  :fun ref _add_child(child _Gen.Name)
+    @_children[child.short] = child
+
+  :fun full String: @_full_into(String.new_iso)
+  :fun _full_into(out String'iso) String'iso
+    try (
+      @parent.as!(@)._full_into(--out) << "." << @short
+    |
+      out << @short
+      --out
+    )
+
+:class _Gen.Name.Root
+  :let _by_package_name: Map(String, _Gen.Name).new
+
+  :fun root: @
+
+  :fun lookup!(name_parts Array(String)'val) @->(_Gen.Name)
+    name_parts.each_with_index -> (name_part, index |
+      package_name val = String.join(name_parts.trim(0, index + 1), ".")
+      try (
+        result = @_by_package_name[package_name]!.lookup!(name_parts.trim(index + 1))
+        return result
+      )
+    )
+    error!
+
+  :fun ref pre_override_for_package_name(package_name, savi_name)
+    @_by_package_name[package_name] = _Gen.Name.new(savi_name, @)
+    @
+
+  :fun ref namespace_for_package_name(package_name String) _Gen.Name
+    try (
+      @_by_package_name[package_name]!
+    |
+      savi_name = @savi_name_for_package_name(package_name)
+      @_by_package_name[package_name] = _Gen.Name.new(savi_name, @)
+    )
+
+  // Convert a name like `foo.bar` to `Foo.Bar`.
+  :fun non savi_name_for_package_name(package_name String) String
+    savi_name = String.new_iso(package_name.size)
+    is_first_letter = True
+    // TODO: Use a Unicode-grapheme-cluster-based iteration instead.
+    package_name.each_char_with_index_and_width -> (codepoint, index, width |
+      if (codepoint == '.') (
+        savi_name.push_byte('.')
+        is_first_letter = True
+      |
+        if is_first_letter (
+          savi_name.push_utf8(
+            try (Unicode.codepoint_to_uppercase!(codepoint) | codepoint)
+          )
+          is_first_letter = False
+        |
+          savi_name.push_utf8(codepoint)
+        )
+      )
+    )
+    --savi_name
+
+:class _Gen.File
+  :let desc ProtoBuf.Common.FileDescriptorProto
+  :let name _Gen.Name
+  :let enums Array(_Gen.Enum): []
+  :let messages Array(_Gen.Message): []
+  :new (@desc, @name)
+    @desc.enum_type.each -> (enum |
+      @enums << _Gen.Enum.new(enum, @name)
+    )
+    @desc.message_type.each -> (message |
+      @messages << _Gen.Message.new(message, @name)
+    )
+
+  :fun output_file_name String
+    out = String.new_iso
+    out << @name.full
+    out << ".savi"
+    --out
+
+  :fun into(out String'iso) String'iso
+    @enums.each -> (enum | out = enum.into(--out))
+    @messages.each -> (message | out = message.into(--out))
+    --out
+
+:class _Gen.Enum
+  :let desc ProtoBuf.Common.EnumDescriptorProto
+  :let name _Gen.Name
+  :let values Array(_Gen.EnumValue): []
+  :new (@desc, parent_name)
+    @name = _Gen.Name.new(try (@desc.name.not!(None) | "_"), parent_name)
+    @desc.value.each -> (value |
+      @values << _Gen.EnumValue.new(value, @name)
+    )
+
+  :fun bit_width U8
+    // The minimum power of 2 above 8 which has enough bits to represent
+    // all the possible values of this enum, by checking the maximum value.
+    max_value I32 = 0
+    @values.each -> (value | max_value = max_value.max(value.num))
+    bits_in_use = max_value.bit_width - max_value.leading_zero_bits
+    bits_in_use.next_pow2.max(8)
+
+  :fun into(out String'iso) String'iso
+    out << ":enum " << @name.full << "\n"
+    out << "  :const bit_width U8: " << Inspect[@bit_width] << "\n"
+    @values.each -> (value |
+      out << "  :member " << value.name.full
+      out << ": " << Inspect[value.num] << "\n"
+    )
+    out << "\n"
+    --out
+
+:class _Gen.EnumValue
+  :let desc ProtoBuf.Common.EnumValueDescriptorProto
+  :let name _Gen.Name
+  :new (@desc, parent_name)
+    @name = _Gen.Name.new(try (@desc.name.not!(None) | "_"), parent_name)
+
+  :fun num I32
+    try (@desc.number.not!(None) | 0)
+
+:class _Gen.Message
+  :let desc ProtoBuf.Common.DescriptorProto
+  :let name _Gen.Name
+  :let fields Array(_Gen.Field): []
+  :let enums Array(_Gen.Enum): []
+  :let messages Array(_Gen.Message): []
+  :new (@desc, parent_name)
+    @name = _Gen.Name.new(try (@desc.name.not!(None) | "_"), parent_name)
+    @desc.field.each -> (field |
+      @fields << _Gen.Field.new(field, @name)
+    )
+    @desc.enum_type.each -> (enum |
+      @enums << _Gen.Enum.new(enum, @name)
+    )
+    @desc.nested_type.each -> (message |
+      @messages << _Gen.Message.new(message, @name)
+    )
+
+  :fun into(out String'iso) String'iso
+    out << ":class " << @name.full << "\n"
+
+    ///
+    // Field declarations
+
+    @fields.each -> (field |
+      out << "  :var " << field.name
+      if field.is_repeated (
+        out << " Array(" << field.savi_type_name << "): []"
+      |
+        out << " (" << field.savi_type_name << " | None): None"
+      )
+      out << "\n"
+    )
+    out << "\n"
+
+    ///
+    // Decoding from ProtoBuf
+
+    out << "  :fun ref from_proto!(read ProtoBuf.Reader)\n"
+    out << "    read.each_in_object! -> (key |\n"
+    out << "      case key == (\n"
+
+    @fields.each -> (field |
+      out << "      | " << Inspect[field.key_code] << " | try ("
+      out << "@" << field.name
+      if field.is_repeated (
+        out << " << " << field.read_action
+      |
+        out << " = " << field.read_action
+      )
+      out << ")\n"
+    )
+
+    out << "      | read.unknown_field(key)\n"
+    out << "      )\n"
+    out << "    )\n"
+    out << "    @\n"
+
+    out << "\n"
+
+    ///
+    // Encoding to ProtoBuf
+
+    out << "  :fun to_proto(write ProtoBuf.Writer)\n"
+
+    @fields.each -> (field |
+      local_name = field.name
+      // If the local variable for the ProtoBuf.Writer conflicts with the
+      // name of the field, change the name of the field's local variable.
+      if (local_name == "write") (local_name = "write_value")
+
+      if field.is_repeated (
+        out << "    @" << field.name << ".each -> (" << local_name << " |\n"
+      |
+        out << "    try (\n"
+        out << "      " << local_name << " = @" << field.name << ".not!(None)\n"
+      )
+
+      out << "      write." << field.write_action_kind << "("
+      out << Inspect[field.key_code] << ", "
+      out << local_name << field.write_action_conversion << ")"
+      if field.is_embedded_message (
+        out << "\n      " << local_name << ".to_proto(write)"
+      )
+      out << "\n"
+
+      out << "    )\n"
+    )
+    out << "    @\n"
+    out << "\n"
+
+    ///
+    // Counting size for encoding to ProtoBuf
+
+    out << "  :fun to_proto_size\n"
+    out << "    size USize = 0\n"
+
+    @fields.each -> (field |
+      local_name = field.name
+      // If the local variable for the size total conflicts with the
+      // name of the field, change the name of the field's local variable.
+      if (local_name == "size") (local_name = "size_value")
+
+      if field.is_repeated (
+        out << "    @" << field.name << ".each -> (" << local_name << " |\n"
+        out << "      "
+      |
+        out << "    try ("
+      )
+
+      out << "size += ProtoBuf.SizeOf." << field.write_action_kind << "("
+      out << Inspect[field.key_code] << ", "
+
+      if field.is_repeated (
+        out << local_name
+      |
+        out << "@" << field.name << ".not!(None)"
+      )
+
+      out << field.write_action_conversion << ")"
+      if field.is_repeated (out << "\n    ")
+      out << ")\n"
+    )
+
+    out << "    size\n"
+    out << "\n"
+
+    ///
+    // Nested types
+
+    @enums.each -> (enum | out = enum.into(--out))
+    @messages.each -> (message | out = message.into(--out))
+
+    --out
+
+:class _Gen.Field
+  :let desc ProtoBuf.Common.FieldDescriptorProto
+  :let parent_name _Gen.Name
+  :new (@desc, @parent_name)
+
+  :fun name String
+    try (@desc.name.not!(None) | "_")
+
+  :fun is_repeated Bool
+    try (
+      @desc.label.not!(None)
+      == ProtoBuf.Common.FieldDescriptorProto.Label.LABEL_REPEATED
+    |
+      False
+    )
+
+  :fun is_embedded_message
+    try (
+      @desc.type.not!(None)
+      == ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE
+    |
+      False
+    )
+
+  :fun key_code(kind_code = @kind_code) U64
+    try (
+      @desc.number.not!(None).u64.bit_shl(3).bit_or(kind_code)
+    |
+      -1
+    )
+
+  :fun kind_code U64
+    try (
+      case @desc.type.not!(None) == (
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | 1
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | 5
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | 1
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | 5
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | 1
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | 5
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | 2
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | 2
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | 2
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | error! // TODO
+      | error!
+      )
+    |
+      -1
+    )
+
+  :fun savi_type_name String
+    try (
+      case @desc.type.not!(None) == (
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | "Bool"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "I64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "I32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "U64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | "U32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | "I32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | "I64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "U64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | "U32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | "I32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | "I64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "F64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | "F32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "String"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | "Bytes"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | @named_type_full_name!
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | @named_type_full_name!
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | error! // TODO
+      | error!
+      )
+    |
+      "???"
+    )
+
+  :fun read_action String
+    try (
+      case @desc.type.not!(None) == (
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | "read.bool!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "read.int64!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "read.int32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "read.uint64!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | "read.uint32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | "read.sint32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | "read.sint64!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "read.fixed64!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | "read.fixed32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | "read.sfixed32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | "read.sfixed64!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "read.double!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | "read.float!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "read.string!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | "read.bytes!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | @read_action_enum
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | @read_action_message
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | "???" // TODO
+      | error!
+      )
+    |
+      "???"
+    )
+
+  :fun read_action_enum String
+    out = String.new_iso
+    out << try (@named_type_full_name! | "???")
+    out << ".from_u64!(read.uint64!)"
+    --out
+
+  :fun read_action_message String
+    out = String.new_iso
+    out << try (@named_type_full_name! | "???")
+    out << ".new.from_proto!(read)"
+    --out
+
+  :fun write_action_kind String
+    try (
+      case @desc.type.not!(None) == (
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | "bool_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "int64_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "int32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "uint64_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | "uint32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | "sint32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | "sint64_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "fixed64_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | "fixed32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | "sfixed32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | "sfixed64_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "double_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | "float_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "string_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | "bytes_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | "enum_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | "embedded_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | "???" // TODO
+      | error!
+      )
+    |
+      "???"
+    )
+
+  :fun write_action_conversion String
+    try (
+      case @desc.type.not!(None) == (
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM    | ".u64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE | ".to_proto_size"
+      | error!
+      )
+    |
+      ""
+    )
+
+  :fun named_type_full_name! String
+    proto_type_name = @desc.type_name.not!(None)
+    if proto_type_name.starts_with(".") (
+      try (
+        // An absolute name lookup happens from the namespace root.
+        @parent_name.root.lookup!(proto_type_name.trim(1).split('.')).full
+      |
+        // If it fails, we can't return anything useful here.
+        "NAME_NOT_FOUND"
+      )
+    |
+      // TODO: Implement relative name lookup.
+      "RELATIVE_NAME_LOOKUP_NOT_IMPLEMENTED"
+    )

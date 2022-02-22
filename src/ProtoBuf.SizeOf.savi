@@ -1,0 +1,56 @@
+:module ProtoBuf.SizeOf
+  :fun embedded_field(key U64, size USize)
+    @u64_as_varint(key)
+    + size
+
+  :fun string_field(key U64, value String)
+    @u64_as_varint(key)
+    + @u64_as_varint(value.size.u64)
+    + value.size
+
+  :fun bytes_field(key U64, value Bytes)
+    @u64_as_varint(key)
+    + @u64_as_varint(value.size.u64)
+    + value.size
+
+  :fun bool_field(key U64, value Bool)
+    @u64_as_varint(key)
+    + 1
+
+  :fun int32_field(key U64, value I32)
+    @u64_as_varint(key)
+    + @u32_as_varint(value.u32)
+
+  :fun uint64_field(key U64, value U64)
+    @u64_as_varint(key)
+    + @u64_as_varint(value)
+
+  :fun int64_field(key U64, value I64): @uint64_field(key, value.u64)
+  :fun enum_field(key U64, value U64): @uint64_field(key, value)
+
+  :fun double_field(key U64, value F64)
+    @u64_as_varint(key)
+    + 8
+
+  :fun u32_as_varint(value U32) USize
+    case value <= (
+    | 0x0000_007F | 1
+    | 0x0000_3FFF | 2
+    | 0x001F_FFFF | 3
+    | 0x0FFF_FFFF | 4
+    |               5
+    )
+
+  :fun u64_as_varint(value U64) USize
+    case value <= (
+    | 0x0000_0000_0000_007F | 1
+    | 0x0000_0000_0000_3FFF | 2
+    | 0x0000_0000_001F_FFFF | 3
+    | 0x0000_0000_0FFF_FFFF | 4
+    | 0x0000_0007_FFFF_FFFF | 5
+    | 0x0000_03FF_FFFF_FFFF | 6
+    | 0x0001_FFFF_FFFF_FFFF | 7
+    | 0x00FF_FFFF_FFFF_FFFF | 8
+    | 0x7FFF_FFFF_FFFF_FFFF | 9
+    |                         10
+    )

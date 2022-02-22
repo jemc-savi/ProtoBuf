@@ -1,0 +1,70 @@
+:class _ReaderExampleClass
+  :var name (String | None): None
+  :var admin (Bool | None): None
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 0b0001010 | try (@name = read.string!)
+      | 0b0010000 | try (@admin = read.bool!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+:class _ReaderExampleClassList
+  :var user Array(_ReaderExampleClass): []
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 0b0001010 | try (@user << _ReaderExampleClass.new.from_proto!(read))
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+:class ProtoBuf.Reader.Spec
+  :is Spec
+  :const describes: "ProtoBuf.Reader"
+
+  :it "can fill a shallow object with simple fields, ignoring unknown fields"
+    read_stream = ByteStream.Reader.new
+    write_stream = ByteStream.Writer.to_reader(read_stream)
+    read = ProtoBuf.Reader.new(read_stream)
+    user = _ReaderExampleClass.new
+
+    write_stream
+    << b"\x0A\x05Alice"   // name: "Alice"
+    << b"\x1A\x07unknown" // ???: "unknown"
+    << b"\x10\x01"        // admin: True
+
+    assert no_error: write_stream.flush!
+    assert no_error: user.from_proto!(read)
+    assert: user.name.as!(String) == "Alice"
+    assert: user.admin.as!(Bool) == True
+
+  :it "can fill an object that has a repeated field of sub-objects"
+    read_stream = ByteStream.Reader.new
+    write_stream = ByteStream.Writer.to_reader(read_stream)
+    read = ProtoBuf.Reader.new(read_stream)
+    user_list = _ReaderExampleClassList.new
+
+    write_stream
+    << b"\x0A\x09"      // (begin 9-byte sub object)
+    << b"\x0A\x05Alice" // name: "Alice"
+    << b"\x10\x01"      // admin: True
+
+    << b"\x0A\x05"      // (begin 5-byte sub object)
+    << b"\x0A\x03Bob"   // name: "Bob"
+
+    << b"\x0A\x09"      // (begin 9-byte sub object)
+    << b"\x0A\x05Cyril" // name: "Cyril"
+    << b"\x10\x00"      // admin: False
+
+    assert no_error: write_stream.flush!
+    assert no_error: user_list.from_proto!(read)
+    assert: user_list.user[0]!.name.as!(String) == "Alice"
+    assert: user_list.user[0]!.admin.as!(Bool) == True
+    assert: user_list.user[1]!.name.as!(String) == "Bob"
+    assert: user_list.user[1]!.admin <: None
+    assert: user_list.user[2]!.name.as!(String) == "Cyril"
+    assert: user_list.user[2]!.admin.as!(Bool) == False

@@ -1,0 +1,56 @@
+:struct ProtoBuf.Wire.Reader
+  :let stream ByteStream.Reader
+  :new (@stream)
+
+  :fun has_bytes_ahead: @stream.bytes_ahead > 0
+
+  :: Read a base-128-varint-encoded integer value from the byte stream.
+  ::
+  :: If successful, the value is returned and the cursor is moved forward.
+  ::
+  :: If the end of the varint was not encountered, or if there were too many
+  :: bytes in the encoding for it to possibly fit in a `U64`-width value,
+  :: an error will be raised and the stream cursor will rewind to the marker.
+  :fun ref read_varint_as_u64! U64
+    count U8 = 0
+    value U64 = 0
+    try (
+      @stream.advance_while! -> (byte |
+        // The part of the value contributed by this byte is its bottom 7 bits,
+        // shift left in 7-bit increments based on the number of bytes so far.
+        byte_value = byte.bit_and(0x7F).u64.bit_shl(count * 7)
+
+        // It gets added into the value using a bitwise or operation.
+        value = value.bit_or(byte_value)
+
+        // A U64 value will be always encoded as no more than 10 bytes.
+        // We keep track of the byte count here, and if it grows beyond
+        // that number of bytes, we raise an error eagerly.
+        count += 1
+        error! if (count > 10)
+
+        // Keep advancing as long as the byte we just read isn't the final byte.
+        // A final byte uses only the lower 7 bits, with the top bit clear.
+        byte > 0x7F
+      )
+      @stream.advance!(1)
+    |
+      // If we failed for any reason, rewind the cursor to the marker position.
+      @stream.rewind_to_marker
+      error!
+    )
+    value
+
+  :fun ref skip_varint!
+    @stream.advance_while! -> (byte | byte > 0x7F)
+    @stream.advance!(1)
+
+  :fun ref skip_64_bit_value!
+    @stream.advance!(4)
+
+  :fun ref skip_32_bit_value!
+    @stream.advance!(2)
+
+  :fun ref skip_sized_value!
+    size = @read_varint_as_u64!.usize!
+    @stream.advance!(size)

@@ -1,0 +1,97 @@
+:class ProtoBuf.Wire.Reader.Spec
+  :is Spec
+  :const describes: "ProtoBuf.Wire.Reader"
+
+  :it "reads U64 values from base-128 varints according to the spec"
+    assert: @read(
+      b"\x01"
+    ).read_varint_as_u64! == 1
+
+    assert: @read(
+      b"\x7F"
+    ).read_varint_as_u64! == 0x7F
+
+    assert: @read(
+      b"\x80\x01"
+    ).read_varint_as_u64! == 0x80
+
+    assert: @read(
+      b"\xAC\x02"
+    ).read_varint_as_u64! == 300 // example from the spec docs
+
+    assert: @read(
+      b"\xFF\x7F"
+    ).read_varint_as_u64! == 0x3FFF
+
+    assert: @read(
+      b"\x80\x80\x01"
+    ).read_varint_as_u64! == 0x4000
+
+    assert: @read(
+      b"\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0x1F_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x20_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0x0FFF_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x1000_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0x07_FFFF_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x08_0000_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0x03FF_FFFF_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x0400_0000_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\xFF\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0x01_FFFF_FFFF_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x80\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x02_0000_0000_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0xFF_FFFF_FFFF_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x80\x80\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x0100_0000_0000_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F"
+    ).read_varint_as_u64! == 0x7FFF_FFFF_FFFF_FFFF
+
+    assert: @read(
+      b"\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01"
+    ).read_varint_as_u64! == 0x8000_0000_0000_0000
+
+    assert: @read(
+      b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01"
+    ).read_varint_as_u64! == 0xFFFF_FFFF_FFFF_FFFF
+
+  :fun non read(bytes Bytes)
+    read_stream = ByteStream.Reader.new
+    write_stream = ByteStream.Writer.to_reader(read_stream)
+
+    write_stream << bytes
+    try write_stream.flush!
+
+    ProtoBuf.Wire.Reader.new(read_stream)
