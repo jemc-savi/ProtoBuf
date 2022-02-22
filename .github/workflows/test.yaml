@@ -1,0 +1,28 @@
+name: test
+on: [push]
+jobs:
+  CI-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install protobuf compiler
+        run: sudo apt-get install protobuf-compiler
+
+      - name: install asdf
+        uses: asdf-vm/actions/setup@v1
+
+      - name: install asdf savi plugin
+        run: asdf plugin add savi https://github.com/savi-lang/asdf-savi.git
+
+      - name: install savi
+        uses: asdf-vm/actions/install@v1
+        with:
+          tool_versions: savi latest
+
+      - name: select savi
+        run: asdf global savi latest
+
+      - name: checkout repo
+        uses: actions/checkout@v2
+
+      - name: run full CI suite
+        run: make ci
