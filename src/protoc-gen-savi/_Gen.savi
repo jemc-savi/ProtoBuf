@@ -97,6 +97,10 @@
     --out
 
   :fun into(out String'iso) String'iso
+    out << "///\n"
+    out << "// NOTE: This file was auto-generated from a Protocol Buffer file\n"
+    out << "// using the `protoc` compiler with the `--savi_out=PATH` option.\n"
+    out << "\n"
     @enums.each -> (enum | out = enum.into(--out))
     @messages.each -> (message | out = message.into(--out))
     --out
