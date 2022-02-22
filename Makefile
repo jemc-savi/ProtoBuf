@@ -14,8 +14,8 @@ bin/protoc-gen-savi: $(shell find src -name '*.savi')
 	$(SAVI) build protoc-gen-savi $(extra_args)
 
 # Use the protoc compiler Savi plugin to generate some of the code we use.
-gen: bin/protoc-gen-savi vendor/protobuf/plugin.proto
-	$(PROTOC) --plugin bin/protoc-gen-savi --savi_out=src vendor/protobuf/plugin.proto
+gen: bin/protoc-gen-savi $(shell find vendor -name '*.proto')
+	$(PROTOC) --plugin bin/protoc-gen-savi --savi_out=src -Ivendor vendor/google/protobuf/compiler/plugin.proto
 
 # Check that there is no current diff in git.
 no-diff-check:
