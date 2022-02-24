@@ -1,36 +1,43 @@
 :module ProtoBuf.SizeOf
-  :fun embedded_field(key U64, size USize)
+  :fun bool_field(key U64, value Bool)
     @u64_as_varint(key)
-    + size
+    + 1
 
-  :fun string_field(key U64, value String)
+  :fun uint32_field(key U64, value U32)
     @u64_as_varint(key)
-    + @u64_as_varint(value.size.u64)
-    + value.size
+    + @u32_as_varint(value)
+
+  :fun uint64_field(key U64, value U64)
+    @u64_as_varint(key)
+    + @u64_as_varint(value)
+
+  :fun int32_field(key U64, value I32): @uint32_field(key, value.u32)
+  :fun int64_field(key U64, value I64): @uint64_field(key, value.u64)
+  :fun sint32_field(key U64, value I32): @uint32_field(key, _ZigZag.encode_32(value))
+  :fun sint64_field(key U64, value I64): @uint64_field(key, _ZigZag.encode_64(value))
+
+  :fun fixed32_field(key U64, value U32): @u64_as_varint(key) + 4
+  :fun fixed64_field(key U64, value U64): @u64_as_varint(key) + 8
+  :fun sfixed32_field(key U64, value I32): @fixed32_field(key, 0)
+  :fun sfixed64_field(key U64, value I64): @fixed64_field(key, 0)
+  :fun float_field(key U64, value F32): @fixed32_field(key, 0)
+  :fun double_field(key U64, value F64): @fixed64_field(key, 0)
 
   :fun bytes_field(key U64, value Bytes)
     @u64_as_varint(key)
     + @u64_as_varint(value.size.u64)
     + value.size
 
-  :fun bool_field(key U64, value Bool)
+  :fun string_field(key U64, value String)
     @u64_as_varint(key)
-    + 1
+    + @u64_as_varint(value.size.u64)
+    + value.size
 
-  :fun int32_field(key U64, value I32)
-    @u64_as_varint(key)
-    + @u32_as_varint(value.u32)
-
-  :fun uint64_field(key U64, value U64)
-    @u64_as_varint(key)
-    + @u64_as_varint(value)
-
-  :fun int64_field(key U64, value I64): @uint64_field(key, value.u64)
   :fun enum_field(key U64, value U64): @uint64_field(key, value)
 
-  :fun double_field(key U64, value F64)
+  :fun embedded_field(key U64, size USize)
     @u64_as_varint(key)
-    + 8
+    + size
 
   :fun u32_as_varint(value U32) USize
     case value <= (

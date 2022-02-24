@@ -61,8 +61,8 @@
     is_first_letter = True
     // TODO: Use a Unicode-grapheme-cluster-based iteration instead.
     package_name.each_char_with_index_and_width -> (codepoint, index, width |
-      if (codepoint == '.') (
-        savi_name.push_byte('.')
+      if (codepoint == '.' || codepoint == '_') (
+        savi_name.push_byte(codepoint.u8)
         is_first_letter = True
       |
         if is_first_letter (
@@ -312,20 +312,20 @@
     try (
       case @desc.type.not!(None) == (
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | 0
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | 0
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | 0
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | 0
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | 0
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | 0
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | 0
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | 0
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | 1
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | 5
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | 1
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | 5
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | 1
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | 1
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | 5
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | 1
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | 5
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | 2
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | 1
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | 2
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | 2
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | 0
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | 2
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | error! // TODO
@@ -339,20 +339,20 @@
     try (
       case @desc.type.not!(None) == (
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | "Bool"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "I64"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "I32"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "U64"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | "U32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "U64"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "I32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "I64"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | "I32"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | "I64"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "U64"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | "U32"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "U64"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | "I32"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | "I64"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "F64"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | "F32"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "String"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "F64"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | "Bytes"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "String"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | @named_type_full_name!
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | @named_type_full_name!
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | error! // TODO
@@ -366,20 +366,20 @@
     try (
       case @desc.type.not!(None) == (
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | "read.bool!"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "read.int64!"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "read.int32!"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "read.uint64!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | "read.uint32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "read.uint64!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "read.int32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "read.int64!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | "read.sint32!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | "read.sint64!"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "read.fixed64!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | "read.fixed32!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "read.fixed64!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | "read.sfixed32!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | "read.sfixed64!"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "read.double!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | "read.float!"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "read.string!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "read.double!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | "read.bytes!"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "read.string!"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | @read_action_enum
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | @read_action_message
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | "???" // TODO
@@ -405,20 +405,20 @@
     try (
       case @desc.type.not!(None) == (
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BOOL     | "bool_field"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "int64_field"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "int32_field"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "uint64_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT32   | "uint32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_UINT64   | "uint64_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT32    | "int32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_INT64    | "int64_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT32   | "sint32_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SINT64   | "sint64_field"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "fixed64_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED32  | "fixed32_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FIXED64  | "fixed64_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED32 | "sfixed32_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_SFIXED64 | "sfixed64_field"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "double_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_FLOAT    | "float_field"
-      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "string_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_DOUBLE   | "double_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_BYTES    | "bytes_field"
+      | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_STRING   | "string_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_ENUM     | "enum_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_MESSAGE  | "embedded_field"
       | ProtoBuf.Common.FieldDescriptorProto.Type.TYPE_GROUP    | "???" // TODO

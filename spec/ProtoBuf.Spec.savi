@@ -1,0 +1,120 @@
+:module _RoundTrip(T ProtoBuf.Codable)
+  :fun run T
+    :yields T
+    read_stream = ByteStream.Reader.new
+    write_stream = ByteStream.Writer.to_reader(read_stream)
+    read = ProtoBuf.Reader.new(read_stream)
+    write = ProtoBuf.Writer.new(write_stream)
+
+    input = T.new
+    yield input
+
+    input.to_proto(write)
+    try write_stream.flush!
+
+    output = T.new
+    try (
+      output.from_proto!(read)
+      None // TODO: this should not be needed
+    )
+
+    output
+
+:class ProtoBuf.Spec
+  :is Spec
+  :const describes: "ProtoBuf"
+
+  :it "can round-trip all of the scalar value field types"
+    output = _RoundTrip(_Example.ScalarValues).run -> (input |
+      input.bool_false = False
+      input.bool_true  = True
+
+      input.uint32_zero = 0
+      input.uint32_min  = U32.min_value
+      input.uint32_max  = U32.max_value
+      input.uint64_zero = 0
+      input.uint64_min  = U64.min_value
+      input.uint64_max  = U64.max_value
+      input.int32_zero  = 0
+      input.int32_min   = I32.min_value
+      input.int32_max   = I32.max_value
+      input.int64_zero  = 0
+      input.int64_min   = I64.min_value
+      input.int64_max   = I64.max_value
+      input.sint32_zero = 0
+      input.sint32_min  = I32.min_value
+      input.sint32_max  = I32.max_value
+      input.sint64_zero = 0
+      input.sint64_min  = I64.min_value
+      input.sint64_max  = I64.max_value
+
+      input.fixed32_zero  = 0
+      input.fixed32_min   = U32.min_value
+      input.fixed32_max   = U32.max_value
+      input.fixed64_zero  = 0
+      input.fixed64_min   = U64.min_value
+      input.fixed64_max   = U64.max_value
+      input.sfixed32_zero = 0
+      input.sfixed32_min  = I32.min_value
+      input.sfixed32_max  = I32.max_value
+      input.sfixed64_zero = 0
+      input.sfixed64_min  = I64.min_value
+      input.sfixed64_max  = I64.max_value
+      input.float_zero    = 0
+      input.float_min     = F32.min_value
+      input.float_max     = F32.max_value
+      input.double_zero   = 0
+      input.double_min    = F64.min_value
+      input.double_max    = F64.max_value
+
+      input.bytes_empty     = b""
+      input.bytes_greeting  = b"Hello, World!"
+      input.string_empty    = ""
+      input.string_greeting = "Hello, World!"
+    )
+
+    assert: output.bool_false.not!(None) == False
+    assert: output.bool_true.not!(None)  == True
+
+    assert: output.uint32_zero.not!(None) == 0
+    assert: output.uint32_min.not!(None)  == U32.min_value
+    assert: output.uint32_max.not!(None)  == U32.max_value
+    assert: output.uint64_zero.not!(None) == 0
+    assert: output.uint64_min.not!(None)  == U64.min_value
+    assert: output.uint64_max.not!(None)  == U64.max_value
+    assert: output.int32_zero.not!(None)  == 0
+    assert: output.int32_min.not!(None)   == I32.min_value
+    assert: output.int32_max.not!(None)   == I32.max_value
+    assert: output.int64_zero.not!(None)  == 0
+    assert: output.int64_min.not!(None)   == I64.min_value
+    assert: output.int64_max.not!(None)   == I64.max_value
+    assert: output.sint32_zero.not!(None) == 0
+    assert: output.sint32_min.not!(None)  == I32.min_value
+    assert: output.sint32_max.not!(None)  == I32.max_value
+    assert: output.sint64_zero.not!(None) == 0
+    assert: output.sint64_min.not!(None)  == I64.min_value
+    assert: output.sint64_max.not!(None)  == I64.max_value
+
+    assert: output.fixed32_zero.not!(None)  == 0
+    assert: output.fixed32_min.not!(None)   == U32.min_value
+    assert: output.fixed32_max.not!(None)   == U32.max_value
+    assert: output.fixed64_zero.not!(None)  == 0
+    assert: output.fixed64_min.not!(None)   == U64.min_value
+    assert: output.fixed64_max.not!(None)   == U64.max_value
+    assert: output.sfixed32_zero.not!(None) == 0
+    assert: output.sfixed32_min.not!(None)  == I32.min_value
+    assert: output.sfixed32_max.not!(None)  == I32.max_value
+    assert: output.sfixed64_zero.not!(None) == 0
+    assert: output.sfixed64_min.not!(None)  == I64.min_value
+    assert: output.sfixed64_max.not!(None)  == I64.max_value
+    assert: output.float_zero.not!(None)    == 0
+    assert: output.float_min.not!(None)     == F32.min_value
+    assert: output.float_max.not!(None)     == F32.max_value
+    assert: output.double_zero.not!(None)   == 0
+    assert: output.double_min.not!(None)    == F64.min_value
+    assert: output.double_max.not!(None)    == F64.max_value
+
+    assert: output.bytes_empty.not!(None)     == b""
+    assert: output.bytes_greeting.not!(None)  == b"Hello, World!"
+    assert: output.string_empty.not!(None)    == ""
+    assert: output.string_greeting.not!(None) == "Hello, World!"

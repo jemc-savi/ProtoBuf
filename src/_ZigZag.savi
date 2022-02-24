@@ -1,0 +1,5 @@
+:module _ZigZag
+  :fun encode_32(value I32): value.bit_shl(1).bit_xor(value.bit_shr(31)).u32
+  :fun encode_64(value I64): value.bit_shl(1).bit_xor(value.bit_shr(63)).u64
+  :fun decode_32(value U32): value.bit_shr(1).bit_xor(value.bit_and(1).negate).i32
+  :fun decode_64(value U64): value.bit_shr(1).bit_xor(value.bit_and(1).negate).i64

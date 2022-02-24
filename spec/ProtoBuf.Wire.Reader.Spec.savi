@@ -1,6 +1,6 @@
-:class ProtoBuf.Wire.Reader.Spec
+:class _WireReader.Spec
   :is Spec
-  :const describes: "ProtoBuf.Wire.Reader"
+  :const describes: "_WireReader"
 
   :it "reads U64 values from base-128 varints according to the spec"
     assert: @read(
@@ -94,4 +94,4 @@
     write_stream << bytes
     try write_stream.flush!
 
-    ProtoBuf.Wire.Reader.new(read_stream)
+    _WireReader.new(read_stream)

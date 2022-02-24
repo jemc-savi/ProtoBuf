@@ -1,6 +1,16 @@
-:class ProtoBuf.Wire.Writer.Spec
+:class _WireWriter.Spec
   :is Spec
-  :const describes: "ProtoBuf.Wire.Writer"
+  :const describes: "_WireWriter"
+
+  :it "writes fixed-width 32-bit values in a little-endian byte sequence"
+    assert: @write -> (write |
+      write.fixed32(0x01234567)
+    ) == b"\x67\x45\x23\x01"
+
+  :it "writes fixed-width 64-bit values in a little-endian byte sequence"
+    assert: @write -> (write |
+      write.fixed64(0x0123456711223344)
+    ) == b"\x44\x33\x22\x11\x67\x45\x23\x01"
 
   :it "writes U8 values as base-128 varints according to the spec"
     assert: @write -> (write |
@@ -179,11 +189,11 @@
     ) == b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01"
 
   :fun non write
-    :yields ProtoBuf.Wire.Writer
+    :yields _WireWriter
     read_stream = ByteStream.Reader.new
     write_stream = ByteStream.Writer.to_reader(read_stream)
 
-    write = ProtoBuf.Wire.Writer.new(write_stream)
+    write = _WireWriter.new(write_stream)
 
     yield write
 

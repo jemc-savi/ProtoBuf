@@ -1,0 +1,315 @@
+///
+// NOTE: This file was auto-generated from a Protocol Buffer file
+// using the `protoc` compiler with the `--savi_out=PATH` option.
+
+:class _Example.ScalarValues
+  :var bool_false (Bool | None): None
+  :var bool_true (Bool | None): None
+  :var uint32_zero (U32 | None): None
+  :var uint32_min (U32 | None): None
+  :var uint32_max (U32 | None): None
+  :var uint64_zero (U64 | None): None
+  :var uint64_min (U64 | None): None
+  :var uint64_max (U64 | None): None
+  :var int32_zero (I32 | None): None
+  :var int32_min (I32 | None): None
+  :var int32_max (I32 | None): None
+  :var int64_zero (I64 | None): None
+  :var int64_min (I64 | None): None
+  :var int64_max (I64 | None): None
+  :var sint32_zero (I32 | None): None
+  :var sint32_min (I32 | None): None
+  :var sint32_max (I32 | None): None
+  :var sint64_zero (I64 | None): None
+  :var sint64_min (I64 | None): None
+  :var sint64_max (I64 | None): None
+  :var fixed32_zero (U32 | None): None
+  :var fixed32_min (U32 | None): None
+  :var fixed32_max (U32 | None): None
+  :var fixed64_zero (U64 | None): None
+  :var fixed64_min (U64 | None): None
+  :var fixed64_max (U64 | None): None
+  :var sfixed32_zero (I32 | None): None
+  :var sfixed32_min (I32 | None): None
+  :var sfixed32_max (I32 | None): None
+  :var sfixed64_zero (I64 | None): None
+  :var sfixed64_min (I64 | None): None
+  :var sfixed64_max (I64 | None): None
+  :var float_zero (F32 | None): None
+  :var float_min (F32 | None): None
+  :var float_max (F32 | None): None
+  :var double_zero (F64 | None): None
+  :var double_min (F64 | None): None
+  :var double_max (F64 | None): None
+  :var bytes_empty (Bytes | None): None
+  :var bytes_greeting (Bytes | None): None
+  :var string_empty (String | None): None
+  :var string_greeting (String | None): None
+
+  :fun ref from_proto!(read ProtoBuf.Reader)
+    read.each_in_object! -> (key |
+      case key == (
+      | 8 | try (@bool_false = read.bool!)
+      | 16 | try (@bool_true = read.bool!)
+      | 24 | try (@uint32_zero = read.uint32!)
+      | 32 | try (@uint32_min = read.uint32!)
+      | 40 | try (@uint32_max = read.uint32!)
+      | 48 | try (@uint64_zero = read.uint64!)
+      | 56 | try (@uint64_min = read.uint64!)
+      | 64 | try (@uint64_max = read.uint64!)
+      | 72 | try (@int32_zero = read.int32!)
+      | 80 | try (@int32_min = read.int32!)
+      | 88 | try (@int32_max = read.int32!)
+      | 96 | try (@int64_zero = read.int64!)
+      | 104 | try (@int64_min = read.int64!)
+      | 112 | try (@int64_max = read.int64!)
+      | 120 | try (@sint32_zero = read.sint32!)
+      | 128 | try (@sint32_min = read.sint32!)
+      | 136 | try (@sint32_max = read.sint32!)
+      | 144 | try (@sint64_zero = read.sint64!)
+      | 152 | try (@sint64_min = read.sint64!)
+      | 160 | try (@sint64_max = read.sint64!)
+      | 173 | try (@fixed32_zero = read.fixed32!)
+      | 181 | try (@fixed32_min = read.fixed32!)
+      | 189 | try (@fixed32_max = read.fixed32!)
+      | 193 | try (@fixed64_zero = read.fixed64!)
+      | 201 | try (@fixed64_min = read.fixed64!)
+      | 209 | try (@fixed64_max = read.fixed64!)
+      | 221 | try (@sfixed32_zero = read.sfixed32!)
+      | 229 | try (@sfixed32_min = read.sfixed32!)
+      | 237 | try (@sfixed32_max = read.sfixed32!)
+      | 241 | try (@sfixed64_zero = read.sfixed64!)
+      | 249 | try (@sfixed64_min = read.sfixed64!)
+      | 257 | try (@sfixed64_max = read.sfixed64!)
+      | 269 | try (@float_zero = read.float!)
+      | 277 | try (@float_min = read.float!)
+      | 285 | try (@float_max = read.float!)
+      | 289 | try (@double_zero = read.double!)
+      | 297 | try (@double_min = read.double!)
+      | 305 | try (@double_max = read.double!)
+      | 314 | try (@bytes_empty = read.bytes!)
+      | 322 | try (@bytes_greeting = read.bytes!)
+      | 330 | try (@string_empty = read.string!)
+      | 338 | try (@string_greeting = read.string!)
+      | read.unknown_field(key)
+      )
+    )
+    @
+
+  :fun to_proto(write ProtoBuf.Writer)
+    try (
+      bool_false = @bool_false.not!(None)
+      write.bool_field(8, bool_false)
+    )
+    try (
+      bool_true = @bool_true.not!(None)
+      write.bool_field(16, bool_true)
+    )
+    try (
+      uint32_zero = @uint32_zero.not!(None)
+      write.uint32_field(24, uint32_zero)
+    )
+    try (
+      uint32_min = @uint32_min.not!(None)
+      write.uint32_field(32, uint32_min)
+    )
+    try (
+      uint32_max = @uint32_max.not!(None)
+      write.uint32_field(40, uint32_max)
+    )
+    try (
+      uint64_zero = @uint64_zero.not!(None)
+      write.uint64_field(48, uint64_zero)
+    )
+    try (
+      uint64_min = @uint64_min.not!(None)
+      write.uint64_field(56, uint64_min)
+    )
+    try (
+      uint64_max = @uint64_max.not!(None)
+      write.uint64_field(64, uint64_max)
+    )
+    try (
+      int32_zero = @int32_zero.not!(None)
+      write.int32_field(72, int32_zero)
+    )
+    try (
+      int32_min = @int32_min.not!(None)
+      write.int32_field(80, int32_min)
+    )
+    try (
+      int32_max = @int32_max.not!(None)
+      write.int32_field(88, int32_max)
+    )
+    try (
+      int64_zero = @int64_zero.not!(None)
+      write.int64_field(96, int64_zero)
+    )
+    try (
+      int64_min = @int64_min.not!(None)
+      write.int64_field(104, int64_min)
+    )
+    try (
+      int64_max = @int64_max.not!(None)
+      write.int64_field(112, int64_max)
+    )
+    try (
+      sint32_zero = @sint32_zero.not!(None)
+      write.sint32_field(120, sint32_zero)
+    )
+    try (
+      sint32_min = @sint32_min.not!(None)
+      write.sint32_field(128, sint32_min)
+    )
+    try (
+      sint32_max = @sint32_max.not!(None)
+      write.sint32_field(136, sint32_max)
+    )
+    try (
+      sint64_zero = @sint64_zero.not!(None)
+      write.sint64_field(144, sint64_zero)
+    )
+    try (
+      sint64_min = @sint64_min.not!(None)
+      write.sint64_field(152, sint64_min)
+    )
+    try (
+      sint64_max = @sint64_max.not!(None)
+      write.sint64_field(160, sint64_max)
+    )
+    try (
+      fixed32_zero = @fixed32_zero.not!(None)
+      write.fixed32_field(173, fixed32_zero)
+    )
+    try (
+      fixed32_min = @fixed32_min.not!(None)
+      write.fixed32_field(181, fixed32_min)
+    )
+    try (
+      fixed32_max = @fixed32_max.not!(None)
+      write.fixed32_field(189, fixed32_max)
+    )
+    try (
+      fixed64_zero = @fixed64_zero.not!(None)
+      write.fixed64_field(193, fixed64_zero)
+    )
+    try (
+      fixed64_min = @fixed64_min.not!(None)
+      write.fixed64_field(201, fixed64_min)
+    )
+    try (
+      fixed64_max = @fixed64_max.not!(None)
+      write.fixed64_field(209, fixed64_max)
+    )
+    try (
+      sfixed32_zero = @sfixed32_zero.not!(None)
+      write.sfixed32_field(221, sfixed32_zero)
+    )
+    try (
+      sfixed32_min = @sfixed32_min.not!(None)
+      write.sfixed32_field(229, sfixed32_min)
+    )
+    try (
+      sfixed32_max = @sfixed32_max.not!(None)
+      write.sfixed32_field(237, sfixed32_max)
+    )
+    try (
+      sfixed64_zero = @sfixed64_zero.not!(None)
+      write.sfixed64_field(241, sfixed64_zero)
+    )
+    try (
+      sfixed64_min = @sfixed64_min.not!(None)
+      write.sfixed64_field(249, sfixed64_min)
+    )
+    try (
+      sfixed64_max = @sfixed64_max.not!(None)
+      write.sfixed64_field(257, sfixed64_max)
+    )
+    try (
+      float_zero = @float_zero.not!(None)
+      write.float_field(269, float_zero)
+    )
+    try (
+      float_min = @float_min.not!(None)
+      write.float_field(277, float_min)
+    )
+    try (
+      float_max = @float_max.not!(None)
+      write.float_field(285, float_max)
+    )
+    try (
+      double_zero = @double_zero.not!(None)
+      write.double_field(289, double_zero)
+    )
+    try (
+      double_min = @double_min.not!(None)
+      write.double_field(297, double_min)
+    )
+    try (
+      double_max = @double_max.not!(None)
+      write.double_field(305, double_max)
+    )
+    try (
+      bytes_empty = @bytes_empty.not!(None)
+      write.bytes_field(314, bytes_empty)
+    )
+    try (
+      bytes_greeting = @bytes_greeting.not!(None)
+      write.bytes_field(322, bytes_greeting)
+    )
+    try (
+      string_empty = @string_empty.not!(None)
+      write.string_field(330, string_empty)
+    )
+    try (
+      string_greeting = @string_greeting.not!(None)
+      write.string_field(338, string_greeting)
+    )
+    @
+
+  :fun to_proto_size
+    size USize = 0
+    try (size += ProtoBuf.SizeOf.bool_field(8, @bool_false.not!(None)))
+    try (size += ProtoBuf.SizeOf.bool_field(16, @bool_true.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint32_field(24, @uint32_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint32_field(32, @uint32_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint32_field(40, @uint32_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint64_field(48, @uint64_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint64_field(56, @uint64_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.uint64_field(64, @uint64_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(72, @int32_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(80, @int32_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.int32_field(88, @int32_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.int64_field(96, @int64_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.int64_field(104, @int64_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.int64_field(112, @int64_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.sint32_field(120, @sint32_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.sint32_field(128, @sint32_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.sint32_field(136, @sint32_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.sint64_field(144, @sint64_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.sint64_field(152, @sint64_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.sint64_field(160, @sint64_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.fixed32_field(173, @fixed32_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.fixed32_field(181, @fixed32_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.fixed32_field(189, @fixed32_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.fixed64_field(193, @fixed64_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.fixed64_field(201, @fixed64_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.fixed64_field(209, @fixed64_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.sfixed32_field(221, @sfixed32_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.sfixed32_field(229, @sfixed32_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.sfixed32_field(237, @sfixed32_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.sfixed64_field(241, @sfixed64_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.sfixed64_field(249, @sfixed64_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.sfixed64_field(257, @sfixed64_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.float_field(269, @float_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.float_field(277, @float_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.float_field(285, @float_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.double_field(289, @double_zero.not!(None)))
+    try (size += ProtoBuf.SizeOf.double_field(297, @double_min.not!(None)))
+    try (size += ProtoBuf.SizeOf.double_field(305, @double_max.not!(None)))
+    try (size += ProtoBuf.SizeOf.bytes_field(314, @bytes_empty.not!(None)))
+    try (size += ProtoBuf.SizeOf.bytes_field(322, @bytes_greeting.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(330, @string_empty.not!(None)))
+    try (size += ProtoBuf.SizeOf.string_field(338, @string_greeting.not!(None)))
+    size
+

@@ -1,0 +1,37 @@
+:class _ZigZag.Spec
+  :is Spec
+  :const describes: "_ZigZag"
+
+  :it "maps I32 values to U32 values according to the spec"
+    // These examples are from the documentation.
+    // See: <https://developers.google.com/protocol-buffers/docs/encoding>
+    assert: _ZigZag.encode_32(0) == 0
+    assert: _ZigZag.encode_32(-1) == 1
+    assert: _ZigZag.encode_32(1) == 2
+    assert: _ZigZag.encode_32(-2) == 3
+    assert: _ZigZag.encode_32(I32.max_value) == U32.max_value - 1
+    assert: _ZigZag.encode_32(I32.min_value) == U32.max_value
+
+  :it "maps I64 values to U64 values according to the spec"
+    assert: _ZigZag.encode_64(0) == 0
+    assert: _ZigZag.encode_64(-1) == 1
+    assert: _ZigZag.encode_64(1) == 2
+    assert: _ZigZag.encode_64(-2) == 3
+    assert: _ZigZag.encode_64(I64.max_value) == U64.max_value - 1
+    assert: _ZigZag.encode_64(I64.min_value) == U64.max_value
+
+  :it "maps encoded I32 values back to their original values"
+    assert: _ZigZag.decode_32(_ZigZag.encode_32(0)) == 0
+    assert: _ZigZag.decode_32(_ZigZag.encode_32(-1)) == -1
+    assert: _ZigZag.decode_32(_ZigZag.encode_32(1)) == 1
+    assert: _ZigZag.decode_32(_ZigZag.encode_32(-2)) == -2
+    assert: _ZigZag.decode_32(_ZigZag.encode_32(I32.max_value)) == I32.max_value
+    assert: _ZigZag.decode_32(_ZigZag.encode_32(I32.min_value)) == I32.min_value
+
+  :it "maps encoded I64 values back to their original values"
+    assert: _ZigZag.decode_64(_ZigZag.encode_64(0)) == 0
+    assert: _ZigZag.decode_64(_ZigZag.encode_64(-1)) == -1
+    assert: _ZigZag.decode_64(_ZigZag.encode_64(1)) == 1
+    assert: _ZigZag.decode_64(_ZigZag.encode_64(-2)) == -2
+    assert: _ZigZag.decode_64(_ZigZag.encode_64(I64.max_value)) == I64.max_value
+    assert: _ZigZag.decode_64(_ZigZag.encode_64(I64.min_value)) == I64.min_value
