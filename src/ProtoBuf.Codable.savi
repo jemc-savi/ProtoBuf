@@ -1,0 +1,6 @@
+// TODO break into separates Decodable/Encodable traits?
+:trait ProtoBuf.Codable
+  :new
+  :fun ref from_proto!(read ProtoBuf.Reader) @
+  :fun to_proto(write ProtoBuf.Writer) @
+  :fun to_proto_size USize

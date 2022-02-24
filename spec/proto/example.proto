@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package _example;
+
+message ScalarValues {
+  bool bool_false = 1;
+  bool bool_true = 2;
+
+  uint32 uint32_zero = 3;
+  uint32 uint32_min = 4;
+  uint32 uint32_max = 5;
+  uint64 uint64_zero = 6;
+  uint64 uint64_min = 7;
+  uint64 uint64_max = 8;
+  int32 int32_zero = 9;
+  int32 int32_min = 10;
+  int32 int32_max = 11;
+  int64 int64_zero = 12;
+  int64 int64_min = 13;
+  int64 int64_max = 14;
+  sint32 sint32_zero = 15;
+  sint32 sint32_min = 16;
+  sint32 sint32_max = 17;
+  sint64 sint64_zero = 18;
+  sint64 sint64_min = 19;
+  sint64 sint64_max = 20;
+
+  fixed32 fixed32_zero = 21;
+  fixed32 fixed32_min = 22;
+  fixed32 fixed32_max = 23;
+  fixed64 fixed64_zero = 24;
+  fixed64 fixed64_min = 25;
+  fixed64 fixed64_max = 26;
+  sfixed32 sfixed32_zero = 27;
+  sfixed32 sfixed32_min = 28;
+  sfixed32 sfixed32_max = 29;
+  sfixed64 sfixed64_zero = 30;
+  sfixed64 sfixed64_min = 31;
+  sfixed64 sfixed64_max = 32;
+  float float_zero = 33;
+  float float_min = 34;
+  float float_max = 35;
+  double double_zero = 36;
+  double double_min = 37;
+  double double_max = 38;
+
+  bytes bytes_empty = 39;
+  bytes bytes_greeting = 40;
+  string string_empty = 41;
+  string string_greeting = 42;
+}

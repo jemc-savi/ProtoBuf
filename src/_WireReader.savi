@@ -1,4 +1,4 @@
-:struct ProtoBuf.Wire.Reader
+:struct _WireReader
   :let stream ByteStream.Reader
   :new (@stream)
 
