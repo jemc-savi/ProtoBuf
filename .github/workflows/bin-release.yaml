@@ -1,0 +1,44 @@
+name: bin-release
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      matrix:
+        bin_name: [protoc-gen-savi]
+        include:
+          - { target: x86_64-linux-gnu, runner: ubuntu-20.04 }
+          - { target: x86_64-macosx,    runner: macos-10.15 }
+
+    steps:
+      - name: install asdf
+        uses: asdf-vm/actions/setup@v1
+
+      - name: install asdf savi plugin
+        run: asdf plugin add savi https://github.com/savi-lang/asdf-savi.git
+
+      - name: install savi
+        uses: asdf-vm/actions/install@v1
+        with:
+          tool_versions: savi latest
+
+      - name: select savi
+        run: asdf global savi latest
+
+      - name: checkout repo
+        uses: actions/checkout@v2
+
+      - name: build release binary
+        run: make bin-release && tar -czvf /tmp/bin-release.tar.gz -C bin ${{ matrix.bin_name }}
+
+      - name: upload release binary
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.PUBLIC_REPO_GITHUB_API_TOKEN }}
+          file: /tmp/bin-release.tar.gz
+          asset_name: ${{ matrix.bin_name }}-${{ matrix.target }}.tar.gz
+          tag: ${{ github.ref }}
