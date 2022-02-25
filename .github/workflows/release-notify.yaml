@@ -18,5 +18,5 @@ jobs:
           content: >
             [${{ github.event.release.name }}](${{ github.event.release.html_url }})
             of
-            [${{ github.event.repository.full_name }}](${{ github.event.release.html_url }})
+            [${{ github.event.repository.full_name }}](${{ github.event.repository.html_url }})
             has been released!
