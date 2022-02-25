@@ -1,7 +1,7 @@
 SAVI?=savi
 PROTOC?=protoc
 
-.PHONY: ci spec gen gen-src gen-spec no-diff-check format-check format
+.PHONY: ci spec bin-release gen gen-src gen-spec no-diff-check format-check format
 
 ci: spec gen no-diff-check format-check
 
@@ -12,6 +12,10 @@ spec:
 # Build the protoc compiler Savi plugin executable.
 bin/protoc-gen-savi: $(shell find src -name '*.savi')
 	$(SAVI) build protoc-gen-savi $(extra_args)
+
+# Build a release version of the binary executable for this platform.
+bin-release:
+	$(SAVI) build --release protoc-gen-savi $(extra_args)
 
 # Use the protoc compiler Savi plugin to generate some of the code we use.
 gen: gen-src gen-spec
