@@ -1,21 +1,21 @@
 :manifest lib ProtoBuf
   :sources "src/*.savi"
 
-  :dependency ByteStream "TODO: specify version"
+  :dependency ByteStream v0
 
 :manifest bin "spec"
   :copies ProtoBuf
   :sources "spec/*.savi"
 
-  :dependency Spec "TODO: specify version"
-  :transitive dependency Map "TODO: specify version"
+  :dependency Spec v0
+  :transitive dependency Map v0
 
 :manifest bin "protoc-gen-savi"
   :copies ProtoBuf
   :sources "src/protoc-gen-savi/*.savi"
 
-  :dependency Unicode "TODO: specify version"
-  :dependency Map "TODO: specify version"
-  :dependency StdIn "TODO: specify version"
-  :dependency IO "TODO: specify version"
-  :transitive dependency OSError "TODO: specify version"
+  :dependency Unicode v0
+  :dependency Map v0
+  :dependency StdIn v0
+  :dependency IO v0
+  :transitive dependency OSError v0
